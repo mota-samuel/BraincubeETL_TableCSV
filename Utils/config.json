@@ -1,0 +1,15 @@
+{
+  "api": {
+    "api_key": "eyJ1IjoiMThjMDY2ZTctYjhmOC00NDc0LWI1NGItODY0NWMzNTJjNmZhIiwiayI6IjA-YXZDRy9kfSQ8XjEqcikifQ==",
+    "domain": "ajinomoto.mybraincube.com",
+    "braincube": "ajinomotobrasil",
+    "memory_base": 26
+  },
+  "variaveis": ["1501207"],
+  "agendamentos": [
+    {
+      "job": "incremental",
+      "horarios": ["08:00", "00:45"]
+    }
+  ]
+}
