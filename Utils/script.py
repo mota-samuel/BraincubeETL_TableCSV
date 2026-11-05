@@ -42,7 +42,7 @@ dados = []
 
 mbs = bc.get_memory_base_list()
 
-#,var = mbs[1].get_variable_list()
+#var = mbs[1].get_variable_list()
 # inicio
 for mb in mbs:
     mb_name = mb.get_name()

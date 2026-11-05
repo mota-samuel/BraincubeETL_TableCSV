@@ -5,7 +5,6 @@ from Utils.logger import log
 import json
 
 def executar():
-
     with open("config.json") as f:
         config = json.load(f)
 
@@ -19,23 +18,20 @@ def executar():
     bc = braincube.get_braincube(api["braincube"])
 
     memory_bases = bc.get_memory_base_list()
-    print(memory_bases)
 
-    for mb in memory_bases:
-        print("--------")
-        print("\nOBJETO:", mb)
-        print("\nDIR:", dir(mb))
-        print("\nDICT:", getattr(mb, "__dict__", "Sem __dict__"))
+    # Filtra apenas a memory base configurada
+    # mb_config = api.get("memory_base")
+    # if mb_config is not None:
+    #     memory_bases = [
+    #         mb for mb in memory_bases
+    #         if str(getattr(mb, "id", getattr(mb, "Id", ""))) == str(mb_config)
+    #     ]
 
     log(f"Total de Memory Bases: {len(memory_bases)}")
 
-    # 🔥 paralelismo controlado
-    log("CHEGUEI ANTES DO PROCESSAMENTO")
     with ThreadPoolExecutor(max_workers=4) as executor:
-        futures = []
-
+        futures = [
         for mb in memory_bases:
             futures.append(executor.submit(processar_memory_base, bc, mb))
-
         for f in futures:
             f.result()

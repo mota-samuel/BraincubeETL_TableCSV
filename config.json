@@ -1,15 +1,16 @@
 {
   "api": {
-    "api_key": "eyJ1IjoiMThjMDY2ZTctYjhmOC00NDc0LWI1NGItODY0NWMzNTJjNmZhIiwiayI6IjA-YXZDRy9kfSQ8XjEqcikifQ==",
+    "api_key": "eyJ1IjoiMTJmMThmODEtZDFiNy00ZWQ3LWI2M2YtMGRjYTg3ZTUxMDY5IiwiayI6IlV1Rj5BOT9RITRnRGlpPyMifQ==",
     "domain": "ajinomoto.mybraincube.com",
     "braincube": "ajinomotobrasil",
-    "memory_base": 26
+    "memory_base": 15
   },
-  "variaveis": ["1501207"],
+  "variaveis": ["1501207","1500395","1501148"],
+  "order_var": "1500002",
   "agendamentos": [
     {
       "job": "incremental",
-      "horarios": ["08:00", "00:45"]
+      "intervalo_minutos": 10
     }
   ]
 }
