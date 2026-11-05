@@ -1,0 +1,7 @@
+base_url: https://api.ajinomoto.mybraincube.com
+braincube: ajinomotobrasil
+timeout: 60
+max_retries: 3
+backoff_factor: 2.0
+timezone: America/Sao_Paulo
+data_dir: data

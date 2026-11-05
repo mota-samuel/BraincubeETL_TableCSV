@@ -1,0 +1,67 @@
+name: paradas_mb14
+enabled: true
+
+data_source: mb14
+
+order:
+  mode: auto          # auto resolve pelo endpoint LF, fixed usa value
+
+window:
+  mode: fixed
+  lookback_years: 2
+
+definitions:
+  source: file                        # file, list ou dictionary
+  path: config/inputs/grupo_variables.csv
+  column: UUID
+
+filter:
+  AND:
+    - NOTNULL: ["mb14/d1400005"]
+    - BETWEEN: ["mb14/d1400004", "{window.start}", "{window.end}"]
+
+rename:
+  enabled: true
+  priority: [standard, local, tag]
+
+rules:
+  - type: split_column
+    column: "Máquina"
+    delimiter: "#"
+    keep: 0
+  - type: date_shift
+    source: "Data Inicio"
+    target: "Data OEE"
+    threshold: "22:20"
+    shift_days: 1
+
+output:
+  file: paradas_mb14.csv
+  delimiter: ";"
+  decimal: ","
+  encoding: utf-8-sig
+  datetime_format: "%d/%m/%Y %H:%M:%S"
+  date_format: "%d/%m/%Y"
+  date_only_columns: ["Data OEE"]
+  na_rep: ""
+  allow_missing_columns: false
+  sort:
+    - column: "Data Inicio"
+      ascending: false
+  columns:
+    - IDMX
+    - Data OEE
+    - Turno
+    - Data Inicio
+    - Data Fim
+    - Grupo de Motivo
+    - Descrição de Motivo
+    - ID Parada
+    - Linha
+    - Motivo Pendente
+    - Máquina
+    - Status
+    - Status Detalhado
+    - Tempo Parada
+    - Usuário
+    - Tipo de Parada
