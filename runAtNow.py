@@ -1,6 +1,5 @@
-from Core.extractor import executar
-from Utils.logger import log
+import sys
+from src.cli import main
 
-log("Execução manual iniciada...")
-executar()
-log("Execução manual concluída.")
+if __name__ == "__main__":
+    sys.exit(main(["list"]))

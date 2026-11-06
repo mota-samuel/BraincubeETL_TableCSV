@@ -12,6 +12,9 @@ from .config import QueryConfig, Settings
 from .dictionary import build_dictionary, mb_number
 from .pipeline import run_query
 
+from dotenv import load_dotenv
+load_dotenv()
+
 log = logging.getLogger(__name__)
 
 SETTINGS_PADRAO = Path("config/settings.yaml")
