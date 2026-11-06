@@ -4,8 +4,10 @@ from __future__ import annotations
 import logging
 from datetime import datetime
 
+
+
 from .client import BraincubeClient
-from Config import QueryConfig, Settings
+from .config import QueryConfig, Settings
 from .dictionary import build_dictionary, resolve_definitions
 from .fetch import build_frame
 from .sink import prepare_output, write_csv
