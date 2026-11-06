@@ -10,6 +10,8 @@ from zoneinfo import ZoneInfo
 import yaml
 from pydantic import BaseModel, Field
 
+from dotenv import load_dotenv
+
 DATE_FMT = "%Y%m%d_%H%M%S"
 
 
@@ -32,11 +34,9 @@ class Settings(BaseModel):
 
     @classmethod
     def load(cls, path: Path) -> "Settings":
+        load_dotenv()
         raw = yaml.safe_load(Path(path).read_text(encoding="utf-8")) or {}
         key = os.environ.get("BRAINCUBE_API_KEY")
-        if not key:
-            raise RuntimeError("BRAINCUBE_API_KEY não definida no ambiente")
-        raw["api_key"] = key
         return cls(**raw)
 
 
