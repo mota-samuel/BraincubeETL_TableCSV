@@ -13,9 +13,6 @@ from src.transform import (
 from src.config import DateShiftRule, SplitColumnRule
 from src.fetch import build_frame
 
-from .transform import apply_rules, apply_sort, build_renames
-
-
 def test_rename_pula_colisao_com_coluna_existente():
     df_colunas = ["mb14/d1", "Data Inicio"]
     dicionario = pd.DataFrame(
