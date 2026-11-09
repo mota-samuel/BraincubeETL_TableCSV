@@ -85,26 +85,35 @@ def cmd_variables(args: argparse.Namespace) -> int:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="braincube-etl")
+    # Opções globais no parser principal (aceitas ANTES do subcomando)...
     parser.add_argument("--settings", help="caminho do settings.yaml")
     parser.add_argument("--log-level", default="INFO")
     parser.add_argument("--log-file", help="arquivo de log adicional ao stdout")
 
+    # ...e repetidas em cada subcomando (aceitas DEPOIS dele).
+    # default=argparse.SUPPRESS é essencial: sem ele, o subparser
+    # gravaria None e apagaria o valor já lido pelo parser principal.
+    comum = argparse.ArgumentParser(add_help=False)
+    comum.add_argument("--settings", default=argparse.SUPPRESS)
+    comum.add_argument("--log-level", default=argparse.SUPPRESS)
+    comum.add_argument("--log-file", default=argparse.SUPPRESS)
+
     sub = parser.add_subparsers(dest="comando", required=True)
 
-    p_run = sub.add_parser("run", help="executa uma consulta")
+    p_run = sub.add_parser("run", parents=[comum], help="executa uma consulta")
     p_run.add_argument("--query", required=True)
     p_run.add_argument("--file")
     p_run.set_defaults(func=cmd_run)
 
-    p_list = sub.add_parser("list", help="lista as consultas configuradas")
+    p_list = sub.add_parser("list", parents=[comum], help="lista as consultas configuradas")
     p_list.set_defaults(func=cmd_list)
 
-    p_val = sub.add_parser("validate", help="valida a configuração sem executar")
+    p_val = sub.add_parser("validate", parents=[comum], help="valida a configuração sem executar")
     p_val.add_argument("--query", required=True)
     p_val.add_argument("--file")
     p_val.set_defaults(func=cmd_validate)
 
-    p_var = sub.add_parser("variables", help="exporta variáveis de uma memory base")
+    p_var = sub.add_parser("variables", parents=[comum], help="exporta variáveis de uma memory base")
     p_var.add_argument("--data-source", required=True, help="ex.: mb14")
     p_var.add_argument("--output", help="arquivo .xlsx de saída")
     p_var.set_defaults(func=cmd_variables)

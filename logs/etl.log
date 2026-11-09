@@ -1,0 +1,60 @@
+2026-11-09 15:20:58,656 | INFO    | src.pipeline | === Início paradas_mb14 ===
+2026-11-09 15:20:59,989 | INFO    | src.dictionary | Definitions resolvidas: 15
+2026-11-09 15:20:59,995 | INFO    | src.pipeline | Janela aplicada: 20241109_000000 até 20261109_152059
+2026-11-09 15:20:59,995 | INFO    | src.client | Consultando mb14 com 15 definitions
+2026-11-09 15:22:38,960 | ERROR   | src.cli | Falha na execução: name 'build_renames' is not defined
+Traceback (most recent call last):
+  File "C:\Users\samuel_mota\Documents\BrainCube_ETL\src\cli.py", line 124, in main
+    return args.func(args)
+           ~~~~~~~~~^^^^^^
+  File "C:\Users\samuel_mota\Documents\BrainCube_ETL\src\cli.py", line 40, in cmd_run
+    resultado = run_query(_carregar_query(args.query, args.file), settings)
+  File "C:\Users\samuel_mota\Documents\BrainCube_ETL\src\pipeline.py", line 67, in run_query
+    renames = build_renames(list(df.columns), dictionary)
+              ^^^^^^^^^^^^^
+NameError: name 'build_renames' is not defined. Did you mean: 'build_frame'?
+2026-11-09 15:24:18,142 | INFO    | src.pipeline | === Início paradas_mb14 ===
+2026-11-09 15:24:19,108 | INFO    | src.dictionary | Definitions resolvidas: 15
+2026-11-09 15:24:19,114 | INFO    | src.pipeline | Janela aplicada: 20241109_000000 até 20261109_152419
+2026-11-09 15:24:19,114 | INFO    | src.client | Consultando mb14 com 15 definitions
+2026-11-09 15:25:45,722 | ERROR   | src.cli | Falha na execução: name 'build_renames' is not defined
+Traceback (most recent call last):
+  File "C:\Users\samuel_mota\Documents\BrainCube_ETL\src\cli.py", line 133, in main
+    return args.func(args)
+           ~~~~~~~~~^^^^^^
+  File "C:\Users\samuel_mota\Documents\BrainCube_ETL\src\cli.py", line 40, in cmd_run
+    resultado = run_query(_carregar_query(args.query, args.file), settings)
+  File "C:\Users\samuel_mota\Documents\BrainCube_ETL\src\pipeline.py", line 67, in run_query
+    renames = build_renames(list(df.columns), dictionary)
+              ^^^^^^^^^^^^^
+NameError: name 'build_renames' is not defined. Did you mean: 'build_frame'?
+2026-11-09 15:25:55,403 | INFO    | src.pipeline | === Início paradas_mb14 ===
+2026-11-09 15:25:56,394 | INFO    | src.dictionary | Definitions resolvidas: 15
+2026-11-09 15:25:56,403 | INFO    | src.pipeline | Janela aplicada: 20241109_000000 até 20261109_152556
+2026-11-09 15:25:56,403 | INFO    | src.client | Consultando mb14 com 15 definitions
+2026-11-09 15:27:56,505 | ERROR   | src.cli | Falha na execução: name 'build_renames' is not defined
+Traceback (most recent call last):
+  File "C:\Users\samuel_mota\Documents\BrainCube_ETL\src\cli.py", line 133, in main
+    return args.func(args)
+           ~~~~~~~~~^^^^^^
+  File "C:\Users\samuel_mota\Documents\BrainCube_ETL\src\cli.py", line 40, in cmd_run
+    resultado = run_query(_carregar_query(args.query, args.file), settings)
+  File "C:\Users\samuel_mota\Documents\BrainCube_ETL\src\pipeline.py", line 67, in run_query
+    renames = build_renames(list(df.columns), dictionary)
+              ^^^^^^^^^^^^^
+NameError: name 'build_renames' is not defined. Did you mean: 'build_frame'?
+2026-11-09 15:37:06,364 | INFO    | src.pipeline | === Início paradas_mb14 ===
+2026-11-09 15:37:07,365 | INFO    | src.dictionary | Definitions resolvidas: 15
+2026-11-09 15:37:07,371 | INFO    | src.pipeline | Janela aplicada: 20241109_000000 até 20261109_153707
+2026-11-09 15:37:07,371 | INFO    | src.client | Consultando mb14 com 15 definitions
+2026-11-09 15:39:51,416 | ERROR   | src.cli | Falha na execução: name 'build_renames' is not defined
+Traceback (most recent call last):
+  File "C:\Users\samuel_mota\Documents\BrainCube_ETL\src\cli.py", line 133, in main
+    return args.func(args)
+           ~~~~~~~~~^^^^^^
+  File "C:\Users\samuel_mota\Documents\BrainCube_ETL\src\cli.py", line 40, in cmd_run
+    resultado = run_query(_carregar_query(args.query, args.file), settings)
+  File "C:\Users\samuel_mota\Documents\BrainCube_ETL\src\pipeline.py", line 67, in run_query
+    renames = build_renames(list(df.columns), dictionary)
+              ^^^^^^^^^^^^^
+NameError: name 'build_renames' is not defined. Did you mean: 'build_frame'?

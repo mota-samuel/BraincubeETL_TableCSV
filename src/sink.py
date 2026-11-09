@@ -44,7 +44,7 @@ def write_csv(df: pd.DataFrame, spec: OutputSpec, settings: Settings) -> Path:
     destino.parent.mkdir(parents=True, exist_ok=True)
 
     # Escrita atômica: grava em .tmp e só então substitui o destino.
-    # Uma falha no meio da escrita nunca deixa CSV parcial no lugar do
+    # Falha no meio da escrita nunca deixa CSV parcial no lugar do
     # arquivo que o consumidor (ex.: Power BI) vai ler.
     temporario = Path(str(destino) + ".tmp")
     df.to_csv(
@@ -52,4 +52,10 @@ def write_csv(df: pd.DataFrame, spec: OutputSpec, settings: Settings) -> Path:
         index=False,
         sep=spec.delimiter,
         decimal=spec.decimal,
-        encoding="utf-8")
+        encoding=spec.encoding,
+        na_rep=spec.na_rep,
+    )
+    os.replace(temporario, destino)
+
+    log.info("CSV gravado em %s (%d linhas)", destino.resolve(), len(df))
+    return destino
