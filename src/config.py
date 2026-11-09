@@ -1,16 +1,20 @@
-"""Carregamento e validação da configuração."""
+"""Modelos de configuração (settings e consultas)."""
 from __future__ import annotations
 
 import os
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 from typing import Annotated, Literal, Union
 from zoneinfo import ZoneInfo
 
 import yaml
+from dotenv import load_dotenv
 from pydantic import BaseModel, Field
 
-from dotenv import load_dotenv
+# Raiz do projeto (src/config.py -> parents[1] == raiz).
+# Todo caminho relativo (settings, queries, inputs, data_dir) é resolvido
+# contra esta raiz, tornando o ETL imune ao diretório de execução.
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 DATE_FMT = "%Y%m%d_%H%M%S"
 
@@ -30,14 +34,22 @@ class Settings(BaseModel):
     max_retries: int = 3
     backoff_factor: float = 2.0
     timezone: str = "America/Sao_Paulo"
-    data_dir: Path = Path("data")
+    data_dir: Path = PROJECT_ROOT / "data"
 
     @classmethod
     def load(cls, path: Path) -> "Settings":
         load_dotenv()
         raw = yaml.safe_load(Path(path).read_text(encoding="utf-8")) or {}
+
         key = os.environ.get("BRAINCUBE_API_KEY")
-        return cls(**raw)
+        if not key:
+            raise RuntimeError("BRAINCUBE_API_KEY não definida no ambiente")
+        raw["api_key"] = key
+
+        settings = cls(**raw)
+        if not settings.data_dir.is_absolute():
+            settings.data_dir = PROJECT_ROOT / settings.data_dir
+        return settings
 
 
 class OrderSpec(BaseModel):
@@ -112,6 +124,7 @@ class OutputSpec(BaseModel):
     date_only_columns: list[str] = Field(default_factory=list)
     na_rep: str = ""
     allow_missing_columns: bool = False
+    write_on_empty: bool = False
     sort: list[SortSpec] = Field(default_factory=list)
 
 
@@ -130,4 +143,10 @@ class QueryConfig(BaseModel):
     @classmethod
     def load(cls, path: Path) -> "QueryConfig":
         raw = yaml.safe_load(Path(path).read_text(encoding="utf-8")) or {}
-        return cls(**raw)
+        config = cls(**raw)
+        if (
+            config.definitions.path is not None
+            and not config.definitions.path.is_absolute()
+        ):
+            config.definitions.path = PROJECT_ROOT / config.definitions.path
+        return config

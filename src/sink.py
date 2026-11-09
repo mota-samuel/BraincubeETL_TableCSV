@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+import os
 from pathlib import Path
 
 import pandas as pd
@@ -13,7 +14,6 @@ log = logging.getLogger(__name__)
 
 def prepare_output(df: pd.DataFrame, spec: OutputSpec) -> pd.DataFrame:
     faltando = [c for c in spec.columns if c not in df.columns]
-
     if faltando and not spec.allow_missing_columns:
         raise ValueError(
             f"o CSV perderia colunas do contrato: {faltando}. "
@@ -43,14 +43,13 @@ def write_csv(df: pd.DataFrame, spec: OutputSpec, settings: Settings) -> Path:
     destino = Path(settings.data_dir) / "output" / spec.file
     destino.parent.mkdir(parents=True, exist_ok=True)
 
+    # Escrita atômica: grava em .tmp e só então substitui o destino.
+    # Uma falha no meio da escrita nunca deixa CSV parcial no lugar do
+    # arquivo que o consumidor (ex.: Power BI) vai ler.
+    temporario = Path(str(destino) + ".tmp")
     df.to_csv(
-        destino,
+        temporario,
         index=False,
         sep=spec.delimiter,
         decimal=spec.decimal,
-        encoding=spec.encoding,
-        na_rep=spec.na_rep,
-    )
-
-    log.info("CSV gravado em %s (%d linhas)", destino.resolve(), len(df))
-    return destino
+        encoding="utf-8")

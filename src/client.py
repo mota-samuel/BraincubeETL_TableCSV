@@ -59,18 +59,20 @@ class BraincubeClient:
     def resolve_order(self, data_source: str) -> str:
         if data_source in self._order_cache:
             return self._order_cache[data_source]
-
-        url = self._url("braincube", self.settings.braincube, "braindata", data_source, "LF")
+        url = self._url(
+            "braincube", self.settings.braincube, "braindata", data_source, "LF"
+        )
         log.debug("Descobrindo order em %s", url)
         response = self.session.get(url, timeout=self.settings.timeout)
         payload = self._handle(response, f"descoberta de order de {data_source}")
 
         order = payload.get("order")
-        if not order:
-            raise BraincubeError(f"resposta sem campo 'order' para {data_source}")
-
+        if not isinstance(order, str) or not order.strip():
+            raise BraincubeError(
+                f"descoberta de order de {data_source} não retornou 'order' "
+                f"válido: {str(payload)[:300]}"
+            )
         self._order_cache[data_source] = order
-        log.info("Order de %s resolvido: %s", data_source, order)
         return order
 
     def fetch_data(
@@ -80,15 +82,15 @@ class BraincubeClient:
         filtro: dict,
         order: str,
     ) -> dict:
-        url = self._url("braincube", self.settings.braincube, "braindata", data_source, "LF")
+        url = self._url(
+            "braincube", self.settings.braincube, "braindata", data_source, "LF"
+        )
         body = {
             "order": order,
             "definitions": definitions,
             "context": {"dataSource": data_source, "filter": filtro},
         }
-        log.info(
-            "Consultando %s com %d definitions", data_source, len(definitions)
-        )
+        log.info("Consultando %s com %d definitions", data_source, len(definitions))
         response = self.session.post(url, json=body, timeout=self.settings.timeout)
         return self._handle(response, f"consulta de dados de {data_source}")
 
@@ -111,5 +113,4 @@ class BraincubeClient:
 
         items = payload.get("items") or []
         self._dict_cache[data_source] = items
-        log.info("Dicionário de %s com %d variáveis", data_source, len(items))
         return items

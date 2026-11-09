@@ -8,17 +8,18 @@ from pathlib import Path
 
 from . import logging_setup
 from .client import BraincubeClient
-from .config import QueryConfig, Settings
-from .dictionary import build_dictionary, mb_number
+from .config import PROJECT_ROOT, QueryConfig, Settings
+from .dictionary import build_dictionary
 from .pipeline import run_query
-
-from dotenv import load_dotenv
-load_dotenv()
 
 log = logging.getLogger(__name__)
 
-SETTINGS_PADRAO = Path("config/settings.yaml")
-QUERIES_DIR = Path("config/queries")
+# Caminhos ancorados na raiz do projeto: o ETL funciona igual quando
+# executado manualmente, pelo agendador ou por CI, de qualquer diretório.
+# ATENÇÃO: a pasta é "config/queries" (minúscula) — rodar o git mv indicado
+# no fim deste pacote, pois o Linux/Docker/CI são case-sensitive.
+SETTINGS_PADRAO = PROJECT_ROOT / "config" / "settings.yaml"
+QUERIES_DIR = PROJECT_ROOT / "config" / "queries"
 
 
 def _carregar_settings(caminho: str | None) -> Settings:
@@ -44,12 +45,12 @@ def cmd_run(args: argparse.Namespace) -> int:
 def cmd_list(args: argparse.Namespace) -> int:
     arquivos = sorted(QUERIES_DIR.glob("*.yaml"))
     if not arquivos:
-        print("Nenhuma configuração de consulta encontrada.")
+        print(f"Nenhuma consulta configurada em {QUERIES_DIR}")
         return 0
     for arquivo in arquivos:
         query = QueryConfig.load(arquivo)
-        marca = "ativa" if query.enabled else "desabilitada"
-        print(f"{query.name:<24} {query.data_source:<10} {marca}")
+        status = "habilitada" if query.enabled else "desabilitada"
+        print(f"{arquivo.stem} | {query.name} | {query.data_source} | {status}")
     return 0
 
 
@@ -70,7 +71,9 @@ def cmd_validate(args: argparse.Namespace) -> int:
 def cmd_variables(args: argparse.Namespace) -> int:
     settings = _carregar_settings(args.settings)
     client = BraincubeClient(settings)
-    dicionario = build_dictionary(client, args.data_source, ["standard", "local", "tag"])
+    dicionario = build_dictionary(
+        client, args.data_source, ["standard", "local", "tag"]
+    )
     if args.output:
         destino = Path(args.output)
         dicionario.to_excel(destino, index=False)
@@ -84,6 +87,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="braincube-etl")
     parser.add_argument("--settings", help="caminho do settings.yaml")
     parser.add_argument("--log-level", default="INFO")
+    parser.add_argument("--log-file", help="arquivo de log adicional ao stdout")
 
     sub = parser.add_subparsers(dest="comando", required=True)
 
@@ -111,12 +115,16 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
-    logging_setup.setup(getattr(logging, str(args.log_level).upper(), logging.INFO))
+    arquivo_log = Path(args.log_file) if args.log_file else None
+    logging_setup.setup(
+        getattr(logging, str(args.log_level).upper(), logging.INFO),
+        log_file=arquivo_log,
+    )
     try:
         return args.func(args)
     except Exception as exc:  # noqa: BLE001
-        log.error("Falha na execução: %s", exc)
-        log.debug("Detalhe", exc_info=True)
+        # exc_info garante o stack trace mesmo com log-level INFO em produção.
+        log.error("Falha na execução: %s", exc, exc_info=True)
         return 1
 
 
