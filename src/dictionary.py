@@ -76,7 +76,7 @@ def resolve_definitions(
         if caminho.suffix.lower() in {".xlsx", ".xls"}:
             df = pd.read_excel(caminho)
         else:
-            df = pd.read_csv(caminho, dtype=str, sep=None, engine="python")
+            df = pd.read_csv(caminho, dtype=str, sep=None, engine="python", encoding="utf-8-sig")
 
         if spec.column not in df.columns:
             raise KeyError(

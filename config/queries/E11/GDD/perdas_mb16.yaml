@@ -13,7 +13,7 @@ window:
 
 definitions:
   source: file
-  path: config/inputs/perdas_variables.csv
+  path: config/inputs/E11/GDD/grupo_variables_perdasE11.csv
   column: UUID
 
 filter:
