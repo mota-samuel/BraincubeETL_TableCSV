@@ -1,0 +1,55 @@
+name: perdas_mb16
+enabled: true
+
+data_source: mb16
+
+order:
+  mode: fixed
+  value: mb16/d1600001
+
+window:
+  mode: fixed
+  lookback_years: 2
+
+definitions:
+  source: file
+  path: config/inputs/perdas_variables.csv
+  column: UUID
+
+filter:
+  BETWEEN: ["mb16/d1600003", "{window.start}", "{window.end}"]
+
+rename:
+  enabled: true
+  priority: [standard, local, tag]
+
+rules:
+  - type: conditional_column
+    target: "Origem"
+    source: "Motivo"
+    equals: ""
+    then_value: "DADOS BALANÇA"
+    else_value: "PERDAS PROCESSO"
+
+output:
+  file: perdas_mb16.csv
+  delimiter: ";"
+  decimal: ","
+  encoding: utf-8-sig
+  datetime_format: "%d/%m/%Y %H:%M:%S"
+  date_format: "%d/%m/%Y"
+  date_only_columns: []
+  na_rep: ""
+  allow_missing_columns: false
+  sort:
+    - column: "Data Hora"
+      ascending: false
+  columns:
+    - IDMX
+    - Data Hora
+    - Origem
+    - Grupo
+    - Linha
+    - Motivo
+    - Quantidade
+    - Turno

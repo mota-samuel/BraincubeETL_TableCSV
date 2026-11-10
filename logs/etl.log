@@ -58,3 +58,13 @@ Traceback (most recent call last):
     renames = build_renames(list(df.columns), dictionary)
               ^^^^^^^^^^^^^
 NameError: name 'build_renames' is not defined. Did you mean: 'build_frame'?
+2026-11-09 15:49:40,236 | INFO    | src.pipeline | === Início paradas_mb14 ===
+2026-11-09 15:49:41,246 | INFO    | src.dictionary | Definitions resolvidas: 15
+2026-11-09 15:49:41,258 | INFO    | src.pipeline | Janela aplicada: 20241109_000000 até 20261109_154941
+2026-11-09 15:49:41,259 | INFO    | src.client | Consultando mb14 com 15 definitions
+2026-11-09 15:51:39,031 | INFO    | src.pipeline | 15 colunas renomeadas
+2026-11-09 15:51:40,121 | INFO    | src.transform | Split aplicado em Máquina pelo delimitador #
+2026-11-09 15:51:40,522 | INFO    | src.transform | Data deslocada: Data Inicio -> Data OEE, limite 22:20, 56633 linhas viradas
+2026-11-09 15:52:02,411 | INFO    | src.sink | CSV gravado em C:\Users\samuel_mota\Documents\BrainCube_ETL\data\output\paradas_mb14.csv (770181 linhas)
+2026-11-09 15:52:02,412 | INFO    | src.pipeline | === Fim paradas_mb14 em 142.2s ===
+2026-11-09 15:52:03,033 | INFO    | src.cli | Resultado: {'status': 'ok', 'linhas': 770181, 'colunas': 16, 'arquivo': 'C:\\Users\\samuel_mota\\Documents\\BrainCube_ETL\\data\\output\\paradas_mb14.csv', 'duracao_s': 142.2}

@@ -12,7 +12,7 @@ window:
 
 definitions:
   source: file                        # file, list ou dictionary
-  path: config/inputs/grupo_variables.csv
+  path: config/inputs/grupo_variables_paradasE11.csv
   column: UUID
 
 filter:

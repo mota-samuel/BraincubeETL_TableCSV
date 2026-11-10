@@ -101,3 +101,25 @@ def test_sort_desc_preserva_ordem_esperada():
 
     out = apply_sort(df, [S()])
     assert out["Data Inicio"].iloc[0] == pd.Timestamp("2026-03-01")
+
+from src.config import ConditionalColumnRule, DateShiftRule, SplitColumnRule
+from src.transform import apply_conditional_column, apply_date_shift, apply_rules, apply_sort, build_renames
+
+
+def test_conditional_column_replica_m_inclusive_nulo():
+    # No M, null = "" é False: nulo cai no else_value
+    df = pd.DataFrame({"Motivo": ["Falta energia", "", None]})
+    regra = ConditionalColumnRule(
+        type="conditional_column",
+        target="Origem",
+        source="Motivo",
+        equals="",
+        then_value="DADOS BALANÇA",
+        else_value="PERDAS PROCESSO",
+    )
+    out = apply_conditional_column(df, regra)
+    assert list(out["Origem"]) == [
+        "PERDAS PROCESSO",
+        "DADOS BALANÇA",
+        "PERDAS PROCESSO",
+    ]

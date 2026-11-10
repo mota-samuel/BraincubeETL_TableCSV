@@ -41,11 +41,11 @@ def test_query_ancora_input_relativo_na_raiz(tmp_path):
     arquivo = tmp_path / "q.yaml"
     arquivo.write_text(
         "name: teste\ndata_source: mb14\n"
-        "definitions:\n  source: file\n  path: config/inputs/grupo_variables.csv\n"
+        "definitions:\n  source: file\n  path: config/inputs/grupo_variables_paradasE11.csv\n"
         "output:\n  file: teste.csv\n  columns: [X]\n",
         encoding="utf-8",
     )
     query = QueryConfig.load(arquivo)
     assert query.definitions.path == (
-        PROJECT_ROOT / "config" / "inputs" / "grupo_variables.csv"
+        PROJECT_ROOT / "config" / "inputs" / "grupo_variables_paradasE11.csv"
     )

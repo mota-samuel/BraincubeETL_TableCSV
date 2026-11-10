@@ -12,8 +12,8 @@ from dotenv import load_dotenv
 from pydantic import BaseModel, Field
 
 # Raiz do projeto (src/config.py -> parents[1] == raiz).
-# Todo caminho relativo (settings, queries, inputs, data_dir) é resolvido
-# contra esta raiz, tornando o ETL imune ao diretório de execução.
+# Todo caminho relativo é resolvido contra esta raiz, tornando o ETL
+# imune ao diretório de execução (manual, agendador ou CI).
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 DATE_FMT = "%Y%m%d_%H%M%S"
@@ -38,7 +38,7 @@ class Settings(BaseModel):
 
     @classmethod
     def load(cls, path: Path) -> "Settings":
-        load_dotenv()
+        load_dotenv(PROJECT_ROOT / ".env")
         raw = yaml.safe_load(Path(path).read_text(encoding="utf-8")) or {}
 
         key = os.environ.get("BRAINCUBE_API_KEY")
@@ -103,8 +103,18 @@ class TrimRule(BaseModel):
     columns: list[str]
 
 
+class ConditionalColumnRule(BaseModel):
+    type: Literal["conditional_column"]
+    target: str        # nova coluna ("Origem")
+    source: str        # coluna avaliada ("Motivo")
+    equals: str = ""   # valor de comparação
+    then_value: str    # se igual
+    else_value: str    # se diferente (inclusive nulo, paridade com o M)
+
+
 Rule = Annotated[
-    Union[SplitColumnRule, DateShiftRule, TrimRule], Field(discriminator="type")
+    Union[SplitColumnRule, DateShiftRule, TrimRule, ConditionalColumnRule],
+    Field(discriminator="type"),
 ]
 
 

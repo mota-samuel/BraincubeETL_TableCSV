@@ -99,6 +99,33 @@ def apply_trim(df: pd.DataFrame, rule) -> pd.DataFrame:
     return df
 
 
+def apply_conditional_column(df: pd.DataFrame, rule) -> pd.DataFrame:
+    """Réplica do AddColumn condicional do M.
+
+    Paridade exata: no M, null = "" resulta False, então motivo NULO
+    cai no else_value (mesmo comportamento do relatório atual).
+    Se o negócio decidir que nulo conta como vazio, trocar a comparação
+    por: valores = df[rule.source].astype("string").fillna("")
+    """
+    if rule.source not in df.columns:
+        raise KeyError(f"coluna ausente para conditional_column: {rule.source}")
+
+    valores = df[rule.source].astype("string")
+    comparacao = valores.eq(str(rule.equals)).fillna(False)
+
+    df[rule.target] = [
+        rule.then_value if c else rule.else_value for c in comparacao
+    ]
+    log.info(
+        "Coluna derivada %s a partir de %s: %d linhas = '%s'",
+        rule.target,
+        rule.source,
+        int(comparacao.sum()),
+        rule.then_value,
+    )
+    return df
+
+
 def apply_rules(df: pd.DataFrame, rules: list) -> pd.DataFrame:
     for rule in rules:
         if rule.type == "split_column":
@@ -107,6 +134,8 @@ def apply_rules(df: pd.DataFrame, rules: list) -> pd.DataFrame:
             df = apply_date_shift(df, rule)
         elif rule.type == "trim":
             df = apply_trim(df, rule)
+        elif rule.type == "conditional_column":
+            df = apply_conditional_column(df, rule)
         else:
             raise ValueError(f"regra desconhecida: {rule.type}")
     return df
@@ -115,7 +144,6 @@ def apply_rules(df: pd.DataFrame, rules: list) -> pd.DataFrame:
 def apply_sort(df: pd.DataFrame, spec: list) -> pd.DataFrame:
     if not spec:
         return df
-
     colunas = [s.column for s in spec]
     ausentes = [c for c in colunas if c not in df.columns]
     if ausentes:
