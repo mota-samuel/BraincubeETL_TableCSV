@@ -28,6 +28,21 @@ def _curto(valor: str | None) -> str:
         return "?"
 
 
+def _em_execucao(entrada: dict, agora: datetime) -> datetime | None:
+    """Início da execução em curso, se o flag for recente (<60min)."""
+    bruto = entrada.get("running_since")
+    if not bruto:
+        return None
+    try:
+        inicio = datetime.fromisoformat(bruto)
+        delta = (agora - inicio).total_seconds()
+    except (TypeError, ValueError):
+        return None
+    if delta < 0 or delta > 3600:
+        return None  # flag órfão de crash ou relógio inconsistente
+    return inicio
+
+
 def construir_painel(schedule: ScheduleFile, state: dict, agora: datetime) -> Panel:
     """Monta o painel a partir do schedule e do state carregados do disco."""
     tabela = Table.grid(padding=(0, 2))
@@ -40,10 +55,11 @@ def construir_painel(schedule: ScheduleFile, state: dict, agora: datetime) -> Pa
         if not job.enabled:
             continue
         entrada = state.get(job.name) or {}
-        if entrada.get("last_result") == "failed":
-            detalhe = (
-                f"[red]FALHOU[/] em {_curto(entrada.get('last_attempt'))} (retry após cooldown)"
-            )
+        em_curso = _em_execucao(entrada, agora)
+        if em_curso:
+            detalhe = f"[yellow]▶ em execução desde {em_curso:%H:%M:%S}[/]"
+        elif entrada.get("last_result") == "failed":
+            detalhe = f"[red]FALHOU[/] em {_curto(entrada.get('last_attempt'))} (retry após cooldown)"
         elif entrada.get("last_success"):
             detalhe = (
                 f"[green]OK[/] em {_curto(entrada.get('last_success'))} "
@@ -59,18 +75,27 @@ def construir_painel(schedule: ScheduleFile, state: dict, agora: datetime) -> Pa
     for job in schedule.jobs:
         if not job.enabled:
             continue
+        entrada = state.get(job.name) or {}
         anterior = ultima_ocorrencia(job.schedule, agora)
         proxima = proxima_ocorrencia(job.schedule, agora)
-        intervalo = (proxima - anterior).total_seconds()
-        decorrido = (agora - anterior).total_seconds()
-        frac = decorrido / intervalo if intervalo > 0 else 1.0
-        percentual = int(round(frac * 100))
-        cor = "green" if percentual >= 80 else ("yellow" if percentual >= 50 else "white")
-        detalhe = (
-            f"[{cor}]{_barra_progresso(frac)}[/] {percentual:>3}% — "
-            f"em {_formatar_contagem(proxima - agora)} ({proxima:%d/%m %H:%M}) — "
-            f"{len(job.queries)} query(s): {', '.join(job.queries)}"
-        )
+        em_curso = _em_execucao(entrada, agora)
+        if em_curso:
+            detalhe = (
+                f"[yellow]▶ em execução desde {em_curso:%H:%M:%S}[/] — "
+                f"próxima marca {proxima:%H:%M} — "
+                f"{len(job.queries)} query(s): {', '.join(job.queries)}"
+            )
+        else:
+            intervalo = (proxima - anterior).total_seconds()
+            decorrido = (agora - anterior).total_seconds()
+            frac = decorrido / intervalo if intervalo > 0 else 1.0
+            percentual = int(round(frac * 100))
+            cor = "green" if percentual >= 80 else ("yellow" if percentual >= 50 else "white")
+            detalhe = (
+                f"[{cor}]{_barra_progresso(frac)}[/] {percentual:>3}% — "
+                f"em {_formatar_contagem(proxima - agora)} ({proxima:%d/%m %H:%M}) — "
+                f"{len(job.queries)} query(s): {', '.join(job.queries)}"
+            )
         tabela.add_row(job.name, detalhe)
 
     return Panel(
@@ -78,6 +103,7 @@ def construir_painel(schedule: ScheduleFile, state: dict, agora: datetime) -> Pa
         title=f"Braincube ETL — monitor — {agora:%d/%m/%Y %H:%M:%S}",
         border_style="cyan",
     )
+
 
 class PainelVivo:
     """Renderable dinâmico para o Live: cada atualização reconstrói o painel

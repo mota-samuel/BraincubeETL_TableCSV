@@ -244,6 +244,10 @@ def run_tick(settings: Settings, schedule_path: Path | None = None) -> dict:
                 continue
 
             inicio = datetime.now(agora.tzinfo)
+            em_curso = state.get(job.name) or {}
+            em_curso["running_since"] = inicio.isoformat()
+            state[job.name] = em_curso
+            _salvar_state(state_path, state)
             resultados = executar_job(job, settings)
             falhou = any(r["status"] != "ok" for r in resultados)
             duracao_total = round((datetime.now(agora.tzinfo) - inicio).total_seconds(), 1)

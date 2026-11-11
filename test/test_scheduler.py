@@ -203,3 +203,41 @@ def test_painel_vivo_atende_contrato_de_renderable():
         PainelVivo(lambda: Panel("contador"))
     )
     assert "contador" in saida.getvalue()
+
+def test_painel_mostra_job_em_execucao():
+    import io
+
+    from rich.console import Console
+
+    from src.dashboard import construir_painel
+    from src.scheduler import ScheduleFile
+
+    schedule = ScheduleFile(jobs=[JobSpec(name="rapido", schedule="every 10 minutes", queries=["q1"])])
+    agora = datetime(2026, 11, 11, 1, 53, 53, tzinfo=TZ)
+    state = {"rapido": {"running_since": "2026-11-11T01:46:11-03:00",
+                        "last_success": "2026-11-11T01:34:00-03:00",
+                        "last_result": "ok"}}
+    painel = construir_painel(schedule, state, agora)
+    saida = io.StringIO()
+    Console(width=140, file=saida, force_terminal=True).print(painel)
+    assert "em execução desde 01:46" in saida.getvalue()
+
+
+def test_painel_ignora_running_since_orfao():
+    import io
+
+    from rich.console import Console
+
+    from src.dashboard import construir_painel
+    from src.scheduler import ScheduleFile
+
+    schedule = ScheduleFile(jobs=[JobSpec(name="rapido", schedule="every 10 minutes", queries=["q1"])])
+    agora = datetime(2026, 11, 11, 3, 0, tzinfo=TZ)
+    state = {"rapido": {"running_since": "2026-11-11T01:46:11-03:00",
+                        "last_success": "2026-11-11T01:34:00-03:00",
+                        "last_result": "ok"}}
+    painel = construir_painel(schedule, state, agora)
+    saida = io.StringIO()
+    Console(width=140, file=saida, force_terminal=True).print(painel)
+    assert "em execução" not in saida.getvalue()
+    assert "01:34" in saida.getvalue()
