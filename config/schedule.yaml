@@ -24,16 +24,16 @@ jobs:
       - time_running_semanal_mb15
 
   - name: monitoramento_rapido
-    schedule: "every 10 minutes"
+    schedule: "every 5 minutes"
     queries:
         - paradas_mb14
         - perdas_mb16
 
 notify:
-  notify_on: always            # always | failure | never
-  # mail_smtp: "smtp.suaempresa.com.br:587"
-  # mail_user: usuario@suaempresa.com.br
-  # mail_from: etl@suaempresa.com.br
-  # mail_to: [voce@suaempresa.com.br]
+  notify_on: always            # TEMPORÁRIO para o teste; depois volta para failure
+  mail_smtp: "smtp.office365.com:587"
+  mail_user: samuel_mota@br.ajinomoto.com
+  mail_from: samuel_mota@br.ajinomoto.com
+  mail_to: [samuel_mota@br.ajinomoto.com]
   # teams_webhook: https://...
 # Senha do e-mail NUNCA aqui: defina SMTP_PASSWORD no .env

@@ -72,7 +72,21 @@ def _enviar_email(spec: NotifySpec, assunto: str, corpo: str) -> None:
 
 
 def _enviar_teams(webhook: str, assunto: str, corpo: str) -> None:
-    dados = json.dumps({"text": f"**{assunto}**\n\n{corpo}"}).encode("utf-8")
+    cartao = {
+        "type": "message",
+        "attachments": [{
+            "contentType": "application/vnd.microsoft.card.adaptive",
+            "content": {
+                "type": "AdaptiveCard",
+                "version": "1.4",
+                "body": [
+                    {"type": "TextBlock", "text": assunto, "weight": "Bolder", "size": "Medium"},
+                    {"type": "TextBlock", "text": corpo, "wrap": True},
+                ],
+            },
+        }],
+    }
+    dados = json.dumps(cartao).encode("utf-8")
     requisicao = urllib.request.Request(
         webhook, data=dados, headers={"Content-Type": "application/json"}
     )
