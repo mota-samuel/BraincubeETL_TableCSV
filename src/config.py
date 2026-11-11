@@ -125,6 +125,10 @@ class ParseAttributeRule(BaseModel):
     separator: str = " - "
     machine: str = "Maquina"
     line: str = "Linha"
+    # Partes mínimas para extrair a Maquina da parte 2. Padrão 4 reproduz
+    # as consultas OEE/Qualidade/Performance/Disponibilidade; 3 reproduz o
+    # Time Running, cujos nomes têm 3 partes (Grupo - Maquina - Linha).
+    machine_min_parts: int = 4
 
 
 class FillnaRule(BaseModel):

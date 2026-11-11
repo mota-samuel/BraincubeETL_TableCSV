@@ -1,0 +1,39 @@
+name: fechamento_dia_mb15
+enabled: true
+
+compose:
+  keys: [Timestamp, Linha, Maquina]
+  base:
+    query: oee_dia_mb15
+    column: "OEE - Dia Ajinomoto"
+  joins:
+    - query: disponibilidade_dia_mb15
+      column: "Disponibilidade - Dia Ajinomoto"
+      rename: Disponibilidade
+    - query: qualidade_dia_mb15
+      column: "Qualidade - Dia Ajinomoto"
+      rename: Qualidade
+    - query: performance_dia_mb15
+      column: "Performance - Dia Ajinomoto"
+      rename: Performance
+
+output:
+  file: fechamento_dia_mb15.csv
+  delimiter: ";"
+  decimal: ","
+  encoding: utf-8-sig
+  datetime_format: "%d/%m/%Y %H:%M:%S"
+  date_only_columns: []
+  na_rep: ""
+  allow_missing_columns: false
+  sort:
+    - column: Timestamp
+      ascending: false
+  columns:
+    - Timestamp
+    - Linha
+    - Maquina
+    - "OEE - Dia Ajinomoto"
+    - Disponibilidade
+    - Qualidade
+    - Performance

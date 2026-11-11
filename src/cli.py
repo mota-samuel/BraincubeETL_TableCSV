@@ -29,10 +29,16 @@ def _carregar_settings(caminho: str | None) -> Settings:
 def _carregar_query(nome: str, caminho: str | None) -> QueryConfig:
     if caminho:
         return QueryConfig.load(Path(caminho))
-    arquivo = QUERIES_DIR / f"{nome}.yaml"
-    if not arquivo.exists():
-        raise FileNotFoundError(f"configuração não encontrada: {arquivo}")
-    return QueryConfig.load(arquivo)
+    encontrados = sorted(QUERIES_DIR.rglob(f"{nome}.yaml"))
+    if not encontrados:
+        raise FileNotFoundError(
+            f"configuração não encontrada em {QUERIES_DIR}: {nome}.yaml"
+        )
+    if len(encontrados) > 1:
+        lista = "\n".join(str(p) for p in encontrados)
+        raise ValueError(f"nome de consulta duplicado na árvore:\n{lista}")
+    return QueryConfig.load(encontrados[0])
+
 
 
 def cmd_run(args: argparse.Namespace) -> int:
@@ -43,14 +49,15 @@ def cmd_run(args: argparse.Namespace) -> int:
 
 
 def cmd_list(args: argparse.Namespace) -> int:
-    arquivos = sorted(QUERIES_DIR.glob("*.yaml"))
+    arquivos = sorted(QUERIES_DIR.rglob("*.yaml"))
     if not arquivos:
         print(f"Nenhuma consulta configurada em {QUERIES_DIR}")
         return 0
     for arquivo in arquivos:
         query = QueryConfig.load(arquivo)
+        relativo = arquivo.relative_to(QUERIES_DIR).as_posix()
         status = "habilitada" if query.enabled else "desabilitada"
-        print(f"{arquivo.stem} | {query.name} | {query.data_source} | {status}")
+        print(f"{query.name} | {relativo} | {query.data_source} | {status}")
     return 0
 
 

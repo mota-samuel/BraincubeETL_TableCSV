@@ -145,8 +145,8 @@ def apply_melt(df: pd.DataFrame, rule) -> pd.DataFrame:
 def apply_parse_attribute(df: pd.DataFrame, rule) -> pd.DataFrame:
     """Réplica do Parseia do M.
 
-    4 partes: Indice - Maquina - Categoria - Linha -> Maquina=p1 (ou "-" se vazio), Linha=p3
-    3 partes: Indice - Categoria - Linha -> Maquina="-", Linha=p2
+    4 partes: Indice - Maquina - Categoria - Linha -> Maquina=p1 (ou "-" se vazia), Linha=p3
+    3 partes: com machine_min_parts=3, Maquina=p1 (ou "-"); senão Maquina="-"; Linha=p2
     Menos de 3 partes: Maquina="-", Linha=nula.
     """
     if rule.source not in df.columns:
@@ -159,6 +159,10 @@ def apply_parse_attribute(df: pd.DataFrame, rule) -> pd.DataFrame:
     expandido = serie.str.split(rule.separator, expand=True)
     n_max = 0 if expandido is None else expandido.shape[1]
 
+    # Paridade com o Text.Trim de cada parte no M.
+    for i in range(n_max):
+        expandido[i] = expandido[i].str.strip()
+
     def parte(i: int) -> pd.Series:
         if i < n_max:
             return expandido[i]
@@ -167,10 +171,12 @@ def apply_parse_attribute(df: pd.DataFrame, rule) -> pd.DataFrame:
     maquina = pd.Series("-", index=df.index, dtype="string")
     linha = pd.Series(pd.NA, index=df.index, dtype="string")
 
-    mascara4 = qtde >= 4
+    mascara_maquina = qtde >= rule.machine_min_parts
     p1, p3 = parte(1), parte(3)
-    com_maquina = mascara4 & p1.notna() & (p1 != "")
+    com_maquina = mascara_maquina & p1.notna() & (p1 != "")
     maquina[com_maquina] = p1[com_maquina]
+
+    mascara4 = qtde >= 4
     linha[mascara4] = p3[mascara4]
 
     mascara3 = qtde == 3

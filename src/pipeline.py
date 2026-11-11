@@ -4,8 +4,6 @@ from __future__ import annotations
 import logging
 from datetime import datetime
 
-
-
 from .client import BraincubeClient
 from .config import QueryConfig, Settings
 from .dictionary import build_dictionary, resolve_definitions
@@ -30,6 +28,10 @@ def run_query(query: QueryConfig, settings: Settings) -> dict:
     if not query.enabled:
         log.warning("Consulta %s desabilitada, ignorando", query.name)
         return {"status": "skipped"}
+
+    if query.compose is not None:
+        from .compose import run_compose  # import tardio: evita ciclo
+        return run_compose(query, settings)
 
     inicio = datetime.now()
     log.info("=== Início %s ===", query.name)
