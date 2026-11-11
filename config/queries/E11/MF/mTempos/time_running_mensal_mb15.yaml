@@ -1,0 +1,40 @@
+name: time_running_mensal_mb15
+enabled: true
+
+# Compilado: consome o CSV diário (sem tocar na API) e agrega por mês.
+compose:
+  keys: [Timestamp, Linha, Maquina]
+  base:
+    query: time_running_dia_mb15
+    column: "Time Running - Dia"
+  joins: []
+
+rules:
+  - type: period_column
+    source: Timestamp
+    target: Mes
+    period: month
+  - type: groupby
+    keys: [Mes, Linha, Maquina]
+    aggregations:
+      - column: "Time Running - Dia"
+        func: sum
+        output: "Time Running - Mensal"
+
+output:
+  file: time_running_mensal_mb15.csv
+  delimiter: ";"
+  decimal: ","
+  encoding: utf-8-sig
+  datetime_format: "%d/%m/%Y %H:%M:%S"
+  date_only_columns: [Mes]
+  na_rep: ""
+  allow_missing_columns: false
+  sort:
+    - column: Mes
+      ascending: true
+  columns:
+    - Mes
+    - Linha
+    - Maquina
+    - "Time Running - Mensal"

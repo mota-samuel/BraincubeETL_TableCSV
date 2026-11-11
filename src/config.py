@@ -136,6 +136,27 @@ class FillnaRule(BaseModel):
     columns: list[str]
     value: float | int | str = 0
 
+class GroupAgg(BaseModel):
+    column: str
+    func: Literal["sum", "mean", "min", "max", "count"] = "sum"
+    output: str | None = None
+
+
+class PeriodColumnRule(BaseModel):
+    """Deriva coluna de período (paridade com Date.StartOfMonth/StartOfWeek do M)."""
+    type: Literal["period_column"]
+    source: str
+    target: str
+    period: Literal["month", "week"] = "month"
+    # Usado apenas com period=week. O M usa domingo por padrão.
+    week_start: Literal["sunday", "monday"] = "sunday"
+
+
+class GroupByRule(BaseModel):
+    """Réplica do Table.Group do M."""
+    type: Literal["groupby"]
+    keys: list[str]
+    aggregations: list[GroupAgg]
 
 Rule = Annotated[
     Union[
@@ -146,10 +167,33 @@ Rule = Annotated[
         MeltRule,
         ParseAttributeRule,
         FillnaRule,
+        PeriodColumnRule,
+        GroupByRule,
     ],
     Field(discriminator="type"),
 ]
 
+class GroupAgg(BaseModel):
+    column: str
+    func: Literal["sum", "mean", "min", "max", "count"] = "sum"
+    output: str | None = None
+
+
+class PeriodColumnRule(BaseModel):
+    """Deriva coluna de período (paridade com Date.StartOfMonth/StartOfWeek do M)."""
+    type: Literal["period_column"]
+    source: str
+    target: str
+    period: Literal["month", "week"] = "month"
+    # Usado apenas com period=week. O M usa domingo por padrão.
+    week_start: Literal["sunday", "monday"] = "sunday"
+
+
+class GroupByRule(BaseModel):
+    """Réplica do Table.Group do M."""
+    type: Literal["groupby"]
+    keys: list[str]
+    aggregations: list[GroupAgg]
 
 class SortSpec(BaseModel):
     column: str

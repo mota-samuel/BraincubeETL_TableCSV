@@ -9,7 +9,7 @@ import pandas as pd
 
 from .config import PROJECT_ROOT, QueryConfig, Settings
 from .sink import prepare_output, write_csv
-from .transform import apply_sort
+from .transform import apply_sort, apply_rules
 
 log = logging.getLogger(__name__)
 
@@ -92,6 +92,9 @@ def run_compose(query: QueryConfig, settings: Settings) -> dict:
         antes = len(df)
         df = df.merge(outro, on=spec.keys, how="left")
         log.info("Join left com %s: %d -> %d linhas", entrada.query, antes, len(df))
+
+    if query.rules:
+        df = apply_rules(df, query.rules)
 
     df = apply_sort(df, query.output.sort)
     df = prepare_output(df, query.output)

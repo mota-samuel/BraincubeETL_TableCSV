@@ -226,10 +226,13 @@ def apply_rules(df: pd.DataFrame, rules: list) -> pd.DataFrame:
             df = apply_parse_attribute(df, rule)
         elif rule.type == "fillna":
             df = apply_fillna(df, rule)
+        elif rule.type == "period_column":
+            df = apply_period_column(df, rule)
+        elif rule.type == "groupby":
+            df = apply_groupby(df, rule)
         else:
             raise ValueError(f"regra desconhecida: {rule.type}")
     return df
-
 
 def apply_sort(df: pd.DataFrame, spec: list) -> pd.DataFrame:
     if not spec:
@@ -244,3 +247,42 @@ def apply_sort(df: pd.DataFrame, spec: list) -> pd.DataFrame:
         ascending=[s.ascending for s in spec],
         kind="mergesort",
     ).reset_index(drop=True)
+
+def apply_period_column(df: pd.DataFrame, rule) -> pd.DataFrame:
+    """Paridade com Date.StartOfMonth/StartOfWeek: âncora no início do período."""
+    if rule.source not in df.columns:
+        raise KeyError(f"coluna ausente para period_column: {rule.source}")
+
+    dt = pd.to_datetime(df[rule.source], errors="coerce")
+    if rule.period == "month":
+        periodo = dt.dt.to_period("M").dt.to_timestamp()
+    else:
+        if rule.week_start == "monday":
+            offset = dt.dt.dayofweek
+        else:
+            offset = (dt.dt.dayofweek + 1) % 7  # dias desde o domingo (padrão do M)
+        periodo = (dt - pd.to_timedelta(offset, unit="D")).dt.normalize()
+
+    df[rule.target] = periodo
+    log.info(
+        "Coluna de período %s (%s, week_start=%s) criada a partir de %s",
+        rule.target, rule.period, rule.week_start, rule.source,
+    )
+    return df
+
+
+def apply_groupby(df: pd.DataFrame, rule) -> pd.DataFrame:
+    """Paridade com o Table.Group: mantém as chaves + agregações renomeadas."""
+    ausentes = [c for c in rule.keys if c not in df.columns]
+    if ausentes:
+        raise KeyError(f"colunas de agrupamento ausentes: {ausentes}")
+
+    nomeado = {}
+    for a in rule.aggregations:
+        if a.column not in df.columns:
+            raise KeyError(f"coluna ausente para agregação: {a.column}")
+        nomeado[a.output or a.column] = (a.column, a.func)
+
+    saida = df.groupby(rule.keys, as_index=False, dropna=False).agg(**nomeado)
+    log.info("GroupBy %s: %d -> %d linhas", rule.keys, len(df), len(saida))
+    return saida

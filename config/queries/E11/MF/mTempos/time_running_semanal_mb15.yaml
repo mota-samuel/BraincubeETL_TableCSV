@@ -1,0 +1,40 @@
+name: time_running_semanal_mb15
+enabled: true
+
+compose:
+  keys: [Timestamp, Linha, Maquina]
+  base:
+    query: time_running_dia_mb15
+    column: "Time Running - Dia"
+  joins: []
+
+rules:
+  - type: period_column
+    source: Timestamp
+    target: Semana
+    period: week
+    week_start: sunday
+  - type: groupby
+    keys: [Semana, Linha, Maquina]
+    aggregations:
+      - column: "Time Running - Dia"
+        func: sum
+        output: "Time Running - Semanal"
+
+output:
+  file: time_running_semanal_mb15.csv
+  delimiter: ";"
+  decimal: ","
+  encoding: utf-8-sig
+  datetime_format: "%d/%m/%Y %H:%M:%S"
+  date_only_columns: [Semana]
+  na_rep: ""
+  allow_missing_columns: false
+  sort:
+    - column: Semana
+      ascending: true
+  columns:
+    - Semana
+    - Linha
+    - Maquina
+    - "Time Running - Semanal"
