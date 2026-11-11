@@ -1,0 +1,108 @@
+2026-11-09 15:20:58,656 | INFO    | src.pipeline | === Início paradas_mb14 ===
+2026-11-09 15:20:59,989 | INFO    | src.dictionary | Definitions resolvidas: 15
+2026-11-09 15:20:59,995 | INFO    | src.pipeline | Janela aplicada: 20241109_000000 até 20261109_152059
+2026-11-09 15:20:59,995 | INFO    | src.client | Consultando mb14 com 15 definitions
+2026-11-09 15:22:38,960 | ERROR   | src.cli | Falha na execução: name 'build_renames' is not defined
+Traceback (most recent call last):
+  File "C:\Users\samuel_mota\Documents\BrainCube_ETL\src\cli.py", line 124, in main
+    return args.func(args)
+           ~~~~~~~~~^^^^^^
+  File "C:\Users\samuel_mota\Documents\BrainCube_ETL\src\cli.py", line 40, in cmd_run
+    resultado = run_query(_carregar_query(args.query, args.file), settings)
+  File "C:\Users\samuel_mota\Documents\BrainCube_ETL\src\pipeline.py", line 67, in run_query
+    renames = build_renames(list(df.columns), dictionary)
+              ^^^^^^^^^^^^^
+NameError: name 'build_renames' is not defined. Did you mean: 'build_frame'?
+2026-11-09 15:24:18,142 | INFO    | src.pipeline | === Início paradas_mb14 ===
+2026-11-09 15:24:19,108 | INFO    | src.dictionary | Definitions resolvidas: 15
+2026-11-09 15:24:19,114 | INFO    | src.pipeline | Janela aplicada: 20241109_000000 até 20261109_152419
+2026-11-09 15:24:19,114 | INFO    | src.client | Consultando mb14 com 15 definitions
+2026-11-09 15:25:45,722 | ERROR   | src.cli | Falha na execução: name 'build_renames' is not defined
+Traceback (most recent call last):
+  File "C:\Users\samuel_mota\Documents\BrainCube_ETL\src\cli.py", line 133, in main
+    return args.func(args)
+           ~~~~~~~~~^^^^^^
+  File "C:\Users\samuel_mota\Documents\BrainCube_ETL\src\cli.py", line 40, in cmd_run
+    resultado = run_query(_carregar_query(args.query, args.file), settings)
+  File "C:\Users\samuel_mota\Documents\BrainCube_ETL\src\pipeline.py", line 67, in run_query
+    renames = build_renames(list(df.columns), dictionary)
+              ^^^^^^^^^^^^^
+NameError: name 'build_renames' is not defined. Did you mean: 'build_frame'?
+2026-11-09 15:25:55,403 | INFO    | src.pipeline | === Início paradas_mb14 ===
+2026-11-09 15:25:56,394 | INFO    | src.dictionary | Definitions resolvidas: 15
+2026-11-09 15:25:56,403 | INFO    | src.pipeline | Janela aplicada: 20241109_000000 até 20261109_152556
+2026-11-09 15:25:56,403 | INFO    | src.client | Consultando mb14 com 15 definitions
+2026-11-09 15:27:56,505 | ERROR   | src.cli | Falha na execução: name 'build_renames' is not defined
+Traceback (most recent call last):
+  File "C:\Users\samuel_mota\Documents\BrainCube_ETL\src\cli.py", line 133, in main
+    return args.func(args)
+           ~~~~~~~~~^^^^^^
+  File "C:\Users\samuel_mota\Documents\BrainCube_ETL\src\cli.py", line 40, in cmd_run
+    resultado = run_query(_carregar_query(args.query, args.file), settings)
+  File "C:\Users\samuel_mota\Documents\BrainCube_ETL\src\pipeline.py", line 67, in run_query
+    renames = build_renames(list(df.columns), dictionary)
+              ^^^^^^^^^^^^^
+NameError: name 'build_renames' is not defined. Did you mean: 'build_frame'?
+2026-11-09 15:37:06,364 | INFO    | src.pipeline | === Início paradas_mb14 ===
+2026-11-09 15:37:07,365 | INFO    | src.dictionary | Definitions resolvidas: 15
+2026-11-09 15:37:07,371 | INFO    | src.pipeline | Janela aplicada: 20241109_000000 até 20261109_153707
+2026-11-09 15:37:07,371 | INFO    | src.client | Consultando mb14 com 15 definitions
+2026-11-09 15:39:51,416 | ERROR   | src.cli | Falha na execução: name 'build_renames' is not defined
+Traceback (most recent call last):
+  File "C:\Users\samuel_mota\Documents\BrainCube_ETL\src\cli.py", line 133, in main
+    return args.func(args)
+           ~~~~~~~~~^^^^^^
+  File "C:\Users\samuel_mota\Documents\BrainCube_ETL\src\cli.py", line 40, in cmd_run
+    resultado = run_query(_carregar_query(args.query, args.file), settings)
+  File "C:\Users\samuel_mota\Documents\BrainCube_ETL\src\pipeline.py", line 67, in run_query
+    renames = build_renames(list(df.columns), dictionary)
+              ^^^^^^^^^^^^^
+NameError: name 'build_renames' is not defined. Did you mean: 'build_frame'?
+2026-11-09 15:49:40,236 | INFO    | src.pipeline | === Início paradas_mb14 ===
+2026-11-09 15:49:41,246 | INFO    | src.dictionary | Definitions resolvidas: 15
+2026-11-09 15:49:41,258 | INFO    | src.pipeline | Janela aplicada: 20241109_000000 até 20261109_154941
+2026-11-09 15:49:41,259 | INFO    | src.client | Consultando mb14 com 15 definitions
+2026-11-09 15:51:39,031 | INFO    | src.pipeline | 15 colunas renomeadas
+2026-11-09 15:51:40,121 | INFO    | src.transform | Split aplicado em Máquina pelo delimitador #
+2026-11-09 15:51:40,522 | INFO    | src.transform | Data deslocada: Data Inicio -> Data OEE, limite 22:20, 56633 linhas viradas
+2026-11-09 15:52:02,411 | INFO    | src.sink | CSV gravado em C:\Users\samuel_mota\Documents\BrainCube_ETL\data\output\paradas_mb14.csv (770181 linhas)
+2026-11-09 15:52:02,412 | INFO    | src.pipeline | === Fim paradas_mb14 em 142.2s ===
+2026-11-09 15:52:03,033 | INFO    | src.cli | Resultado: {'status': 'ok', 'linhas': 770181, 'colunas': 16, 'arquivo': 'C:\\Users\\samuel_mota\\Documents\\BrainCube_ETL\\data\\output\\paradas_mb14.csv', 'duracao_s': 142.2}
+2026-11-10 20:32:31,519 | INFO    | src.pipeline | === Início perdas_mb16 ===
+2026-11-10 20:32:32,842 | INFO    | src.dictionary | Definitions resolvidas: 7
+2026-11-10 20:32:32,850 | INFO    | src.pipeline | Janela aplicada: 20241110_000000 até 20261110_203232
+2026-11-10 20:32:32,852 | INFO    | src.client | Consultando mb16 com 7 definitions
+2026-11-10 20:32:33,752 | INFO    | src.pipeline | 7 colunas renomeadas
+2026-11-10 20:32:33,757 | INFO    | src.transform | Coluna derivada Origem a partir de Motivo: 3913 linhas = 'DADOS BALANÇA'
+2026-11-10 20:32:33,842 | INFO    | src.sink | CSV gravado em C:\Users\samuel_mota\Documents\BrainCube_ETL\data\output\perdas_mb16.csv (6667 linhas)
+2026-11-10 20:32:33,842 | INFO    | src.pipeline | === Fim perdas_mb16 em 2.3s ===
+2026-11-10 20:32:33,848 | INFO    | src.cli | Resultado: {'status': 'ok', 'linhas': 6667, 'colunas': 8, 'arquivo': 'C:\\Users\\samuel_mota\\Documents\\BrainCube_ETL\\data\\output\\perdas_mb16.csv', 'duracao_s': 2.3}
+2026-11-10 20:35:49,003 | INFO    | src.pipeline | === Início paradas_mb14 ===
+2026-11-10 20:35:50,412 | INFO    | src.dictionary | Definitions resolvidas: 15
+2026-11-10 20:35:50,420 | INFO    | src.pipeline | Janela aplicada: 20241110_000000 até 20261110_203550
+2026-11-10 20:35:50,421 | INFO    | src.client | Consultando mb14 com 15 definitions
+2026-11-10 20:36:45,102 | INFO    | src.pipeline | 15 colunas renomeadas
+2026-11-10 20:36:45,982 | INFO    | src.transform | Split aplicado em Máquina pelo delimitador #
+2026-11-10 20:36:46,256 | INFO    | src.transform | Data deslocada: Data Inicio -> Data OEE, limite 22:20, 56900 linhas viradas
+2026-11-10 20:37:03,875 | INFO    | src.sink | CSV gravado em C:\Users\samuel_mota\Documents\BrainCube_ETL\data\output\paradas_mb14.csv (772811 linhas)
+2026-11-10 20:37:03,875 | INFO    | src.pipeline | === Fim paradas_mb14 em 74.9s ===
+2026-11-10 20:37:04,235 | INFO    | src.cli | Resultado: {'status': 'ok', 'linhas': 772811, 'colunas': 16, 'arquivo': 'C:\\Users\\samuel_mota\\Documents\\BrainCube_ETL\\data\\output\\paradas_mb14.csv', 'duracao_s': 74.9}
+2026-11-10 20:37:05,546 | INFO    | src.pipeline | === Início perdas_mb16 ===
+2026-11-10 20:37:06,288 | INFO    | src.dictionary | Definitions resolvidas: 7
+2026-11-10 20:37:06,296 | INFO    | src.pipeline | Janela aplicada: 20241110_000000 até 20261110_203706
+2026-11-10 20:37:06,297 | INFO    | src.client | Consultando mb16 com 7 definitions
+2026-11-10 20:37:07,028 | INFO    | src.pipeline | 7 colunas renomeadas
+2026-11-10 20:37:07,034 | INFO    | src.transform | Coluna derivada Origem a partir de Motivo: 3913 linhas = 'DADOS BALANÇA'
+2026-11-10 20:37:07,130 | ERROR   | src.cli | Falha na execução: [WinError 5] Acesso negado: 'C:\\Users\\samuel_mota\\Documents\\BrainCube_ETL\\data\\output\\perdas_mb16.csv.tmp' -> 'C:\\Users\\samuel_mota\\Documents\\BrainCube_ETL\\data\\output\\perdas_mb16.csv'
+Traceback (most recent call last):
+  File "C:\Users\samuel_mota\Documents\BrainCube_ETL\src\cli.py", line 133, in main
+    return args.func(args)
+           ~~~~~~~~~^^^^^^
+  File "C:\Users\samuel_mota\Documents\BrainCube_ETL\src\cli.py", line 40, in cmd_run
+    resultado = run_query(_carregar_query(args.query, args.file), settings)
+  File "C:\Users\samuel_mota\Documents\BrainCube_ETL\src\pipeline.py", line 76, in run_query
+    destino = write_csv(df, query.output, settings)
+  File "C:\Users\samuel_mota\Documents\BrainCube_ETL\src\sink.py", line 58, in write_csv
+    os.replace(temporario, destino)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [WinError 5] Acesso negado: 'C:\\Users\\samuel_mota\\Documents\\BrainCube_ETL\\data\\output\\perdas_mb16.csv.tmp' -> 'C:\\Users\\samuel_mota\\Documents\\BrainCube_ETL\\data\\output\\perdas_mb16.csv'
