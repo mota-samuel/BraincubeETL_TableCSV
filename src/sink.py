@@ -5,6 +5,8 @@ import logging
 import os
 from pathlib import Path
 
+import time
+
 import pandas as pd
 
 from .config import OutputSpec, Settings
@@ -38,6 +40,24 @@ def prepare_output(df: pd.DataFrame, spec: OutputSpec) -> pd.DataFrame:
 
     return out
 
+def _substituir_com_retry(origem: Path, destino: Path, tentativas: int = 3, pausa_s: float = 1.5) -> None:
+    """os.replace com retry: no Windows o destino pode estar brevemente
+    travado por outro processo (Excel/Power BI, antivírus, indexador)."""
+    for tentativa in range(1, tentativas + 1):
+        try:
+            os.replace(origem, destino)
+            return
+        except PermissionError:
+            if tentativa == tentativas:
+                raise RuntimeError(
+                    f"destino travado por outro processo após {tentativas} tentativas: "
+                    f"{destino} — feche o arquivo (Excel/Power BI) e reexecute a consulta"
+                ) from None
+            log.warning(
+                "Destino travado (tentativa %d/%d), aguardando %.1fs: %s",
+                tentativa, tentativas, pausa_s * tentativa, destino,
+            )
+            time.sleep(pausa_s * tentativa)
 
 def write_csv(df: pd.DataFrame, spec: OutputSpec, settings: Settings) -> Path:
     destino = Path(settings.data_dir) / "output" / spec.file
@@ -55,7 +75,7 @@ def write_csv(df: pd.DataFrame, spec: OutputSpec, settings: Settings) -> Path:
         encoding=spec.encoding,
         na_rep=spec.na_rep,
     )
-    os.replace(temporario, destino)
+    _substituir_com_retry(temporario, destino)
 
     log.info("CSV gravado em %s (%d linhas)", destino.resolve(), len(df))
     return destino

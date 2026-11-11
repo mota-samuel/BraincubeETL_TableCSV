@@ -4,6 +4,8 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
+import os
+
 from src.config import OutputSpec, Settings
 from src.sink import prepare_output, write_csv
 
@@ -33,3 +35,40 @@ def test_prepare_output_falha_sem_coluna_do_contrato():
     spec = OutputSpec(file="x.csv", columns=["Data Inicio"])
     with pytest.raises(ValueError, match="contrato"):
         prepare_output(df, spec)
+
+def test_substituir_com_retry_tenta_novamente_apos_travamento(tmp_path, monkeypatch):
+    import os
+    from src.sink import _substituir_com_retry
+    replace_original = os.replace  # captura ANTES do patch
+    origem = tmp_path / "a.csv.tmp"
+    destino = tmp_path / "a.csv"
+    origem.write_text("x", encoding="utf-8")
+
+    chamadas = {"n": 0}
+
+    def falso_replace(o, d):
+        chamadas["n"] += 1
+        if chamadas["n"] == 1:
+            raise PermissionError(5, "Acesso negado")
+        return replace_original(o, d)
+
+    monkeypatch.setattr("src.sink.os.replace", falso_replace)
+    monkeypatch.setattr("src.sink.time.sleep", lambda s: None)
+    _substituir_com_retry(origem, destino)
+    assert destino.exists() and chamadas["n"] == 2
+
+
+def test_substituir_com_retry_exaure_com_mensagem_clara(tmp_path, monkeypatch):
+    import pytest
+    from src.sink import _substituir_com_retry
+    origem = tmp_path / "b.csv.tmp"
+    destino = tmp_path / "b.csv"
+    origem.write_text("x", encoding="utf-8")
+
+    def sempre_travado(o, d):
+        raise PermissionError(5, "Acesso negado")
+
+    monkeypatch.setattr("src.sink.os.replace", sempre_travado)
+    monkeypatch.setattr("src.sink.time.sleep", lambda s: None)
+    with pytest.raises(RuntimeError, match="travado"):
+        _substituir_com_retry(origem, destino)

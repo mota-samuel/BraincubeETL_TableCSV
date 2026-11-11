@@ -1,0 +1,39 @@
+# Frequências centralizadas (Modelo B). A ordem dentro de cada job é a ordem de execução.
+retry_cooldown_minutes: 30
+
+jobs:
+  - name: fechamento_dia
+    schedule: "daily 05:00"
+    queries:
+      - oee_dia_mb15
+      - disponibilidade_dia_mb15
+      - qualidade_dia_mb15
+      - performance_dia_mb15
+      - fechamento_dia_mb15
+
+  - name: tempos
+    schedule: "daily 05:15"
+    queries:
+      - time_running_dia_mb15
+      - tempo_calendario_mb15
+      - time_running_mensal_mb15
+
+  - name: gdd_semanal
+    schedule: "weekly mon 06:00"
+    queries:
+      - time_running_semanal_mb15
+
+  - name: monitoramento_rapido
+    schedule: "every 10 minutes"
+    queries:
+        - paradas_mb14
+        - perdas_mb16
+
+notify:
+  notify_on: always            # always | failure | never
+  # mail_smtp: "smtp.suaempresa.com.br:587"
+  # mail_user: usuario@suaempresa.com.br
+  # mail_from: etl@suaempresa.com.br
+  # mail_to: [voce@suaempresa.com.br]
+  # teams_webhook: https://...
+# Senha do e-mail NUNCA aqui: defina SMTP_PASSWORD no .env
