@@ -12,8 +12,6 @@ from dotenv import load_dotenv
 from pydantic import BaseModel, Field
 
 # Raiz do projeto (src/config.py -> parents[1] == raiz).
-# Todo caminho relativo é resolvido contra esta raiz, tornando o ETL
-# imune ao diretório de execução (manual, agendador ou CI).
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 DATE_FMT = "%Y%m%d_%H%M%S"
@@ -105,15 +103,46 @@ class TrimRule(BaseModel):
 
 class ConditionalColumnRule(BaseModel):
     type: Literal["conditional_column"]
-    target: str        # nova coluna ("Origem")
-    source: str        # coluna avaliada ("Motivo")
-    equals: str = ""   # valor de comparação
-    then_value: str    # se igual
-    else_value: str    # se diferente (inclusive nulo, paridade com o M)
+    target: str
+    source: str
+    equals: str = ""
+    then_value: str
+    else_value: str
+
+
+class MeltRule(BaseModel):
+    """Unpivot: colunas cujo nome contém o separador viram linhas."""
+    type: Literal["melt"]
+    separator: str = " - "
+    attribute_name: str = "Atributo"
+    value_name: str
+
+
+class ParseAttributeRule(BaseModel):
+    """Divide o nome do atributo (paridade com o Parseia do M)."""
+    type: Literal["parse_attribute"]
+    source: str
+    separator: str = " - "
+    machine: str = "Maquina"
+    line: str = "Linha"
+
+
+class FillnaRule(BaseModel):
+    type: Literal["fillna"]
+    columns: list[str]
+    value: float | int | str = 0
 
 
 Rule = Annotated[
-    Union[SplitColumnRule, DateShiftRule, TrimRule, ConditionalColumnRule],
+    Union[
+        SplitColumnRule,
+        DateShiftRule,
+        TrimRule,
+        ConditionalColumnRule,
+        MeltRule,
+        ParseAttributeRule,
+        FillnaRule,
+    ],
     Field(discriminator="type"),
 ]
 
@@ -138,10 +167,23 @@ class OutputSpec(BaseModel):
     sort: list[SortSpec] = Field(default_factory=list)
 
 
+class ComposeInput(BaseModel):
+    """Tabela de entrada de uma composição (CSV gerado por outra consulta)."""
+    query: str
+    column: str
+    rename: str | None = None
+
+
+class ComposeSpec(BaseModel):
+    keys: list[str]
+    base: ComposeInput
+    joins: list[ComposeInput] = Field(default_factory=list)
+
+
 class QueryConfig(BaseModel):
     name: str
     enabled: bool = True
-    data_source: str
+    data_source: str | None = None  # None em consultas do tipo compose
     order: OrderSpec = Field(default_factory=OrderSpec)
     window: WindowSpec = Field(default_factory=WindowSpec)
     definitions: DefinitionsSpec = Field(default_factory=DefinitionsSpec)
@@ -149,6 +191,7 @@ class QueryConfig(BaseModel):
     rename: RenameSpec = Field(default_factory=RenameSpec)
     rules: list[Rule] = Field(default_factory=list)
     output: OutputSpec
+    compose: ComposeSpec | None = None
 
     @classmethod
     def load(cls, path: Path) -> "QueryConfig":

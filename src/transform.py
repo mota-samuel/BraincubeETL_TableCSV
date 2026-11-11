@@ -1,4 +1,4 @@
-"""Equivalente das transformações feitas na consulta M."""
+"""Equivalente das transformações feitas nas consultas M."""
 from __future__ import annotations
 
 import logging
@@ -126,6 +126,84 @@ def apply_conditional_column(df: pd.DataFrame, rule) -> pd.DataFrame:
     return df
 
 
+def apply_melt(df: pd.DataFrame, rule) -> pd.DataFrame:
+    """Réplica do UnpivotOtherColumns: ids = colunas SEM o separador."""
+    ids = [c for c in df.columns if rule.separator not in c]
+    atributos = [c for c in df.columns if c not in ids]
+    if not atributos:
+        raise ValueError(
+            f"melt sem colunas de atributo: nenhuma coluna contém '{rule.separator}'"
+        )
+
+    df = df.melt(
+        id_vars=ids, var_name=rule.attribute_name, value_name=rule.value_name
+    )
+    log.info("Melt: %d colunas de atributo -> %d linhas", len(atributos), len(df))
+    return df
+
+
+def apply_parse_attribute(df: pd.DataFrame, rule) -> pd.DataFrame:
+    """Réplica do Parseia do M.
+
+    4 partes: Indice - Maquina - Categoria - Linha -> Maquina=p1 (ou "-" se vazio), Linha=p3
+    3 partes: Indice - Categoria - Linha -> Maquina="-", Linha=p2
+    Menos de 3 partes: Maquina="-", Linha=nula.
+    """
+    if rule.source not in df.columns:
+        raise KeyError(f"coluna ausente para parse_attribute: {rule.source}")
+
+    serie = df[rule.source].astype("string")
+    partes = serie.str.split(rule.separator)
+    qtde = partes.str.len().fillna(0)
+
+    expandido = serie.str.split(rule.separator, expand=True)
+    n_max = 0 if expandido is None else expandido.shape[1]
+
+    def parte(i: int) -> pd.Series:
+        if i < n_max:
+            return expandido[i]
+        return pd.Series(pd.NA, index=df.index, dtype="string")
+
+    maquina = pd.Series("-", index=df.index, dtype="string")
+    linha = pd.Series(pd.NA, index=df.index, dtype="string")
+
+    mascara4 = qtde >= 4
+    p1, p3 = parte(1), parte(3)
+    com_maquina = mascara4 & p1.notna() & (p1 != "")
+    maquina[com_maquina] = p1[com_maquina]
+    linha[mascara4] = p3[mascara4]
+
+    mascara3 = qtde == 3
+    linha[mascara3] = parte(2)[mascara3]
+
+    df[rule.machine] = maquina
+    df[rule.line] = linha
+    df = df.drop(columns=[rule.source])
+    log.info(
+        "Parse de atributo: %d com maquina, %d com 3 partes (%d linhas)",
+        int(com_maquina.sum()),
+        int(mascara3.sum()),
+        len(df),
+    )
+    return df
+
+
+def apply_fillna(df: pd.DataFrame, rule) -> pd.DataFrame:
+    """Substitui NaN por um valor fixo (paridade com o ReplaceValue NaN->0 do M)."""
+    for coluna in rule.columns:
+        if coluna not in df.columns:
+            raise KeyError(f"coluna ausente para fillna: {coluna}")
+        faltantes = int(df[coluna].isna().sum())
+        df[coluna] = df[coluna].fillna(rule.value)
+        log.info(
+            "Fillna em %s: %d valores substituídos por %s",
+            coluna,
+            faltantes,
+            rule.value,
+        )
+    return df
+
+
 def apply_rules(df: pd.DataFrame, rules: list) -> pd.DataFrame:
     for rule in rules:
         if rule.type == "split_column":
@@ -136,6 +214,12 @@ def apply_rules(df: pd.DataFrame, rules: list) -> pd.DataFrame:
             df = apply_trim(df, rule)
         elif rule.type == "conditional_column":
             df = apply_conditional_column(df, rule)
+        elif rule.type == "melt":
+            df = apply_melt(df, rule)
+        elif rule.type == "parse_attribute":
+            df = apply_parse_attribute(df, rule)
+        elif rule.type == "fillna":
+            df = apply_fillna(df, rule)
         else:
             raise ValueError(f"regra desconhecida: {rule.type}")
     return df
