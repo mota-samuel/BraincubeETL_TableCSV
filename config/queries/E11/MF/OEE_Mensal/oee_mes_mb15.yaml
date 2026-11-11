@@ -1,0 +1,58 @@
+name: oee_mes_mb15
+enabled: true
+
+data_source: mb15
+
+order:
+  mode: fixed
+  value: mb15/d1500001
+
+window:
+  mode: fixed
+  lookback_years: 2
+
+definitions:
+  source: file
+  path: config/inputs/E11/MF/OEE_Mensal/grupo_variables_OEE.csv
+  column: UUID
+
+filter:
+  AND:
+    - NOTNULL: ["mb15/d1500191"]
+    - BETWEEN: ["mb15/d1500002", "{window.start}", "{window.end}"]
+
+rename:
+  enabled: true
+  priority: [standard, local, tag]
+
+rules:
+  - type: melt
+    separator: " - "
+    attribute_name: Atributo
+    value_name: "OEE - Mensal"
+  - type: parse_attribute
+    source: Atributo
+    separator: " - "
+    machine: Maquina
+    line: Linha
+  - type: fillna
+    columns: ["OEE - Mensal"]
+    value: 0
+
+output:
+  file: oee_dia_mb15.csv
+  delimiter: ";"
+  decimal: ","
+  encoding: utf-8-sig
+  datetime_format: "%d/%m/%Y %H:%M:%S"
+  date_only_columns: []
+  na_rep: ""
+  allow_missing_columns: false
+  sort:
+    - column: Timestamp
+      ascending: false
+  columns:
+    - Timestamp
+    - Linha
+    - Maquina
+    - "OEE - Mensal"

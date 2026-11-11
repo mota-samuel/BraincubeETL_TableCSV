@@ -1,45 +1,51 @@
 Variable_Name,UUID
-Performance - Check Weigher - Fechamento Dia Ajinomoto - Linha J,mb15/d1500324
-Performance - Check Weigher - Fechamento Dia Ajinomoto - Linha K,mb15/d1500575
-Performance - Check Weigher - Fechamento Dia Ajinomoto - Linha L,mb15/d1500826
-Performance - Check Weigher - Fechamento Dia Ajinomoto - Linha M,mb15/d1501077
-Performance - Check Weigher - Fechamento Dia Ajinomoto - Linha N,mb15/d1501328
-Performance - Check Weigher - Fechamento Dia Ajinomoto - Linha O,mb15/d1500042
-Performance - Embaladora - Fechamento Dia Ajinomoto - Linha J,mb15/d1500511
-Performance - Embaladora - Fechamento Dia Ajinomoto - Linha K,mb15/d1500762
-Performance - Embaladora - Fechamento Dia Ajinomoto - Linha L,mb15/d1501013
-Performance - Embaladora - Fechamento Dia Ajinomoto - Linha M,mb15/d1501264
-Performance - Embaladora - Fechamento Dia Ajinomoto - Linha N,mb15/d1501515
-Performance - Embaladora - Fechamento Dia Ajinomoto - Linha O,mb15/d1500259
-Performance - Encaixotadora - Fechamento Dia Ajinomoto - Linha J,mb15/d1500482
-Performance - Encaixotadora - Fechamento Dia Ajinomoto - Linha K,mb15/d1500733
-Performance - Encaixotadora - Fechamento Dia Ajinomoto - Linha L,mb15/d1500984
-Performance - Encaixotadora - Fechamento Dia Ajinomoto - Linha M,mb15/d1501235
-Performance - Encaixotadora - Fechamento Dia Ajinomoto - Linha N,mb15/d1501486
-Performance - Encaixotadora - Fechamento Dia Ajinomoto - Linha O,mb15/d1500230
-Performance - Fechamento Dia Ajinomoto - Linha J,mb15/d1500327
-Performance - Fechamento Dia Ajinomoto - Linha K,mb15/d1500578
-Performance - Fechamento Dia Ajinomoto - Linha L,mb15/d1500829
-Performance - Fechamento Dia Ajinomoto - Linha M,mb15/d1501080
-Performance - Fechamento Dia Ajinomoto - Linha N,mb15/d1501331
-Performance - Fechamento Dia Ajinomoto - Linha O,mb15/d1500045
-Performance - Raio X - Fechamento Dia Ajinomoto - Linha J,mb15/d1500326
-Performance - Raio X - Fechamento Dia Ajinomoto - Linha K,mb15/d1500577
-Performance - Raio X - Fechamento Dia Ajinomoto - Linha L,mb15/d1500828
-Performance - Raio X - Fechamento Dia Ajinomoto - Linha M,mb15/d1501079
-Performance - Raio X - Fechamento Dia Ajinomoto - Linha N,mb15/d1501330
-Performance - Raio X - Fechamento Dia Ajinomoto - Linha O,mb15/d1500044
-Performance - Sistema de Visão - Fechamento Dia Ajinomoto - Linha J,mb15/d1500325
-Performance - Sistema de Visão - Fechamento Dia Ajinomoto - Linha K,mb15/d1500576
-Performance - Sistema de Visão - Fechamento Dia Ajinomoto - Linha L,mb15/d1500827
-Performance - Sistema de Visão - Fechamento Dia Ajinomoto - Linha M,mb15/d1501078
-Performance - Sistema de Visão - Fechamento Dia Ajinomoto - Linha N,mb15/d1501329
-Performance - Sistema de Visão - Fechamento Dia Ajinomoto - Linha O,mb15/d1500043
-Performance - Upack 1 - Fechamento Dia Ajinomoto - Linha J,mb15/d1500323
-Performance - Upack 1 - Fechamento Dia Ajinomoto - Linha K,mb15/d1500574
-Performance - Upack 1 - Fechamento Dia Ajinomoto - Linha L,mb15/d1500825
-Performance - Upack 1 - Fechamento Dia Ajinomoto - Linha M,mb15/d1501076
-Performance - Upack 1 - Fechamento Dia Ajinomoto - Linha N,mb15/d1501327
-Performance - Upack 1 - Fechamento Dia Ajinomoto - Linha O,mb15/d1500040
-Performance - Upack 2 - Fechamento Dia Ajinomoto - Linha O,mb15/d1500041
+Performance (Manual) - Fechamento Mensal - Linha J,mb15/d1501558
+Performance (Manual) - Fechamento Mensal - Linha K,mb15/d1501562
+Performance (Manual) - Fechamento Mensal - Linha L,mb15/d1501566
+Performance (Manual) - Fechamento Mensal - Linha M,mb15/d1501570
+Performance (Manual) - Fechamento Mensal - Linha N,mb15/d1501574
+Performance (Manual) - Fechamento Mensal - Linha O,mb15/d1501554
+Performance - Check Weigher - Mensal - Linha J,mb15/d1500417
+Performance - Check Weigher - Mensal - Linha K,mb15/d1500668
+Performance - Check Weigher - Mensal - Linha L,mb15/d1500919
+Performance - Check Weigher - Mensal - Linha M,mb15/d1501170
+Performance - Check Weigher - Mensal - Linha N,mb15/d1501421
+Performance - Check Weigher - Mensal - Linha O,mb15/d1500154
+Performance - Embaladora - Mensal - Linha J,mb15/d1500529
+Performance - Embaladora - Mensal - Linha K,mb15/d1500780
+Performance - Embaladora - Mensal - Linha L,mb15/d1501031
+Performance - Embaladora - Mensal - Linha M,mb15/d1501282
+Performance - Embaladora - Mensal - Linha N,mb15/d1501533
+Performance - Embaladora - Mensal - Linha O,mb15/d1500277
+Performance - Encaixotadora - Mensal - Linha J,mb15/d1500486
+Performance - Encaixotadora - Mensal - Linha K,mb15/d1500737
+Performance - Encaixotadora - Mensal - Linha L,mb15/d1500988
+Performance - Encaixotadora - Mensal - Linha M,mb15/d1501239
+Performance - Encaixotadora - Mensal - Linha N,mb15/d1501490
+Performance - Encaixotadora - Mensal - Linha O,mb15/d1500234
+Performance - Mensal - Linha J,mb15/d1500420
+Performance - Mensal - Linha K,mb15/d1500671
+Performance - Mensal - Linha L,mb15/d1500922
+Performance - Mensal - Linha M,mb15/d1501173
+Performance - Mensal - Linha N,mb15/d1501424
+Performance - Mensal - Linha O,mb15/d1500157
+Performance - Raio X - Mensal - Linha J,mb15/d1500419
+Performance - Raio X - Mensal - Linha K,mb15/d1500670
+Performance - Raio X - Mensal - Linha L,mb15/d1500921
+Performance - Raio X - Mensal - Linha M,mb15/d1501172
+Performance - Raio X - Mensal - Linha N,mb15/d1501423
+Performance - Raio X - Mensal - Linha O,mb15/d1500156
+Performance - Sistema de Visão - Mensal - Linha J,mb15/d1500418
+Performance - Sistema de Visão - Mensal - Linha K,mb15/d1500669
+Performance - Sistema de Visão - Mensal - Linha L,mb15/d1500920
+Performance - Sistema de Visão - Mensal - Linha M,mb15/d1501171
+Performance - Sistema de Visão - Mensal - Linha N,mb15/d1501422
+Performance - Sistema de Visão - Mensal - Linha O,mb15/d1500155
+Performance - Upack 1 - Mensal - Linha J,mb15/d1500416
+Performance - Upack 1 - Mensal - Linha K,mb15/d1500667
+Performance - Upack 1 - Mensal - Linha L,mb15/d1500918
+Performance - Upack 1 - Mensal - Linha M,mb15/d1501169
+Performance - Upack 1 - Mensal - Linha N,mb15/d1501420
+Performance - Upack 1 - Mensal - Linha O,mb15/d1500152
+Performance - Upack 2 - Mensal - Linha O,mb15/d1500153
 Timestamp,mb15/d1500002

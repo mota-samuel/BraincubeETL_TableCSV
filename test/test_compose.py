@@ -119,7 +119,7 @@ def test_compose_falha_amigavel_sem_csv_de_origem(tmp_path, monkeypatch):
 
     queries = tmp_path / "queries"
     queries.mkdir()
-    (queries / "fechamento_dia_mb15.yaml").write_text(
+    (queries / "fechamento_mes_mb15.yaml").write_text(
         yaml.safe_dump(_yaml_compose(), allow_unicode=True), encoding="utf-8"
     )
     monkeypatch.setattr("src.compose.QUERIES_DIR", queries)
