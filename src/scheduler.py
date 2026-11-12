@@ -1,9 +1,13 @@
 """Orquestrador central (Modelo B): avalia o que está vencido, executa, notifica.
-
 Frequências centralizadas em config/schedule.yaml; estado em data/state/.
 Modos:
   python -m src.scheduler                # 1 tick: avalia vencidos, executa, sai (recomendado)
   python -m src.scheduler --loop         # processo permanente (tick a cada --interval segundos)
+
+Notificações:
+  - falha imediata: e-mail no momento da falha (notify_on: failure no YAML);
+  - resumo diário: um único e-mail consolidado por dia, após notify.digest_time
+    (ex.: "18:00"), com as execuções registradas em data/execucoes.jsonl.
 """
 from __future__ import annotations
 
@@ -22,18 +26,19 @@ from pydantic import BaseModel, Field
 
 from .compose import resolver_query
 from .config import PROJECT_ROOT, Settings
-from .notify import NotifySpec, enviar_resumo
+from .notify import NotifySpec, enviar_resumo, enviar_resumo_diario  # [ALTERADO] + enviar_resumo_diario
 from .pipeline import run_query
 
 log = logging.getLogger(__name__)
 
+EXEC_LOG = Path("data/execucoes.jsonl")
 SCHEDULE_PADRAO = PROJECT_ROOT / "config" / "schedule.yaml"
 DIAS_SEMANA = {"mon": 0, "tue": 1, "wed": 2, "thu": 3, "fri": 4, "sat": 5, "sun": 6}
 
 
 class JobSpec(BaseModel):
     name: str
-    schedule: str  # "daily HH:MM" | "weekly <mon..sun> HH:MM"
+    schedule: str  # "daily HH:MM" | "weekly <mon..sun> HH:MM" | "every <N> minutes"
     queries: list[str]
     enabled: bool = True
 
@@ -49,9 +54,67 @@ class ScheduleFile(BaseModel):
         return cls(**raw)
 
 
+def registrar_execucao(job: str, status: str, duracao_s: float, linhas, erro: str | None):
+    reg = {"ts": datetime.now().isoformat(timespec="seconds"), "hora": datetime.now().strftime("%H:%M"),
+           "job": job, "status": status, "duracao_s": duracao_s, "linhas": linhas, "erro": erro}
+    EXEC_LOG.parent.mkdir(parents=True, exist_ok=True)
+    with EXEC_LOG.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(reg, ensure_ascii=False) + "\n")
+
+
+def execucoes_do_dia(hoje: str) -> list[dict]:
+    if not EXEC_LOG.exists():
+        return []
+    out = []
+    for linha in EXEC_LOG.read_text(encoding="utf-8").splitlines():
+        try:
+            r = json.loads(linha)
+            if r.get("ts", "").startswith(hoje):
+                out.append(r)
+        except json.JSONDecodeError:
+            continue
+    return out
+
+
+# [NOVO] Resumo diário ---------------------------------------------------------
+
+
+def verificar_resumo_diario(spec: NotifySpec, state: dict, state_path: Path, agora: datetime) -> None:
+    """Envia uma única vez por dia o consolidado das execuções do dia.
+
+    Independente de notify_on (sai mesmo com notify_on: failure).
+    digest_time ausente/vazio desativa. Se o envio falhar, tenta de novo no
+    próximo tick (não marca como enviado).
+    """
+    if not getattr(spec, "digest_time", None):
+        return
+    try:
+        hh, mm = map(int, str(spec.digest_time).split(":"))
+    except ValueError:
+        log.error("digest_time inválido (%r) — resumo diário desativado", spec.digest_time)
+        return
+    hoje = agora.strftime("%Y-%m-%d")
+    alvo = agora.replace(hour=hh, minute=mm, second=0, microsecond=0)
+    if agora < alvo or state.get("_digest", {}).get("last_digest") == hoje:
+        return
+    execs = execucoes_do_dia(hoje)
+    if not execs:
+        log.info("Resumo diário: nenhuma execução hoje — nada a enviar")
+    else:
+        try:
+            enviar_resumo_diario(spec, execs, agora)
+        except Exception:
+            log.exception("Falha ao enviar o resumo diário — nova tentativa no próximo tick")
+            return
+    state["_digest"] = {"last_digest": hoje}
+    _salvar_state(state_path, state)
+
+
+# ---------------------------------------------------------------- fim do novo --
+
+
 def _parse_schedule(spec: str) -> tuple[str, int | None, int, int]:
     """Retorna (tipo, referencia, hh, mm).
-
     daily  -> ref=None, hh/mm do horário
     weekly -> ref=weekday (0=segunda), hh/mm
     every  -> ref=intervalo em minutos (hh/mm não usados)
@@ -94,6 +157,7 @@ def ultima_ocorrencia(spec: str, agora: datetime) -> datetime:
         candidato -= timedelta(days=1)
     return candidato
 
+
 def _parse_dt(valor) -> datetime | None:
     if not valor:
         return None
@@ -101,6 +165,7 @@ def _parse_dt(valor) -> datetime | None:
         return datetime.fromisoformat(valor)
     except ValueError:
         return None
+
 
 def proxima_ocorrencia(spec: str, agora: datetime) -> datetime:
     """Próxima ocorrência agendada (> agora), no fuso do settings."""
@@ -126,6 +191,7 @@ def proxima_ocorrencia(spec: str, agora: datetime) -> datetime:
         candidato += timedelta(days=1)
     return candidato
 
+
 def _formatar_contagem(delta: timedelta) -> str:
     """Delta positivo em texto humano: '3min', '2h 13min', '4d 15h'."""
     total_seg = max(int(delta.total_seconds()), 0)
@@ -139,6 +205,7 @@ def _formatar_contagem(delta: timedelta) -> str:
         partes.append(f"{horas}h")
     partes.append(f"{minutos}min")
     return " ".join(partes)
+
 
 def _formatar_duracao(segundos: float | None) -> str:
     """Duração de execução em texto: '4.3s', '1min 42s', '2h 3min'."""
@@ -159,12 +226,12 @@ def _barra_progresso(frac: float, largura: int = 20) -> str:
     cheios = int(round(frac * largura))
     return "█" * cheios + "░" * (largura - cheios)
 
+
 def _vencido(job: JobSpec, state: dict, agora: datetime, cooldown_min: int) -> tuple[bool, str]:
     entrada = state.get(job.name) or {}
     ultimo_sucesso = _parse_dt(entrada.get("last_success"))
     ultima_tentativa = _parse_dt(entrada.get("last_attempt"))
     ocorrencia = ultima_ocorrencia(job.schedule, agora)
-
     if ultimo_sucesso is None or ultimo_sucesso < ocorrencia:
         if entrada.get("last_result") == "failed" and ultima_tentativa is not None:
             if agora - ultima_tentativa < timedelta(minutes=cooldown_min):
@@ -207,6 +274,7 @@ def executar_job(job: JobSpec, settings: Settings) -> list[dict]:
         resultados.append(item)
     return resultados
 
+
 def _tentar_lock(caminho: Path):
     """Impede dois ticks simultâneos; recicla lock órfão de crash (>1h)."""
     try:
@@ -221,17 +289,16 @@ def _tentar_lock(caminho: Path):
             return None
         return None
 
+
 def run_tick(settings: Settings, schedule_path: Path | None = None) -> dict:
     schedule = ScheduleFile.load(schedule_path or SCHEDULE_PADRAO)
     agora = datetime.now(ZoneInfo(settings.timezone))
     state_path = Path(settings.data_dir) / "state" / "scheduler_state.json"
     lock_path = Path(settings.data_dir) / "state" / "scheduler.lock"
-
     lock = _tentar_lock(lock_path)
     if lock is None:
         log.info("Tick anterior ainda em execução; saindo sem processar")
         return {"agora": agora.isoformat(), "jobs": [], "tick_simultaneo": True}
-
     try:
         state = _carregar_state(state_path)
         resumo = {"agora": agora.isoformat(), "jobs": []}
@@ -242,7 +309,6 @@ def run_tick(settings: Settings, schedule_path: Path | None = None) -> dict:
             log.info("Job %s: %s", job.name, motivo)
             if not deve:
                 continue
-
             inicio = datetime.now(agora.tzinfo)
             em_curso = state.get(job.name) or {}
             em_curso["running_since"] = inicio.isoformat()
@@ -261,8 +327,26 @@ def run_tick(settings: Settings, schedule_path: Path | None = None) -> dict:
                 "last_duration_s": duracao_total,
             }
             _salvar_state(state_path, state)
-            enviar_resumo(schedule.notify, job.name, resultados, inicio)
+
+            # [NOVO] registra a execução — base do resumo diário
+            registrar_execucao(
+                job.name,
+                "falha" if falhou else "ok",
+                duracao_total,
+                sum(int(r.get("linhas") or 0) for r in resultados),
+                next((r["erro"] for r in resultados if r["erro"]), None),
+            )
+
+            # [ALTERADO] e-mail imediato: sempre em falha; em sucesso, só com notify_on: always
+            notify_on = getattr(schedule.notify, "notify_on", None) or "always"
+            if notify_on == "always" or (notify_on == "failure" and falhou):
+                enviar_resumo(schedule.notify, job.name, resultados, inicio)
+
             resumo["jobs"].append({"job": job.name, "falhou": falhou, "resultados": resultados})
+
+        # [NOVO] resumo diário — uma vez por dia, independente de notify_on
+        verificar_resumo_diario(schedule.notify, state, state_path, agora)
+
         return resumo
     finally:
         lock.close()
@@ -286,8 +370,6 @@ def main(argv: list[str] | None = None) -> int:
         from . import logging_setup
         logging_setup.setup(getattr(logging, args.log_level.upper(), logging.INFO))
         resumo = run_tick(settings, Path(args.schedule))
-
-        # Painel estático ao final do tick manual
         from rich.console import Console
         from .dashboard import construir_painel
         schedule = ScheduleFile.load(Path(args.schedule))
@@ -313,7 +395,6 @@ def main(argv: list[str] | None = None) -> int:
     from rich.live import Live
     from rich.logging import RichHandler
     from rich.text import Text
-
     from .dashboard import PainelVivo, construir_painel
 
     console = Console()
@@ -336,7 +417,6 @@ def main(argv: list[str] | None = None) -> int:
         handlers=[RichHandler(console=console, show_time=True, show_level=True, show_path=False)],
     )
     log.info("Loop permanente iniciado (intervalo %ss)", args.interval)
-
     try:
         with Live(PainelVivo(refrescar), console=console, refresh_per_second=1):
             while True:

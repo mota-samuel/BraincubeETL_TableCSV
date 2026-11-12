@@ -21,6 +21,7 @@ class NotifySpec(BaseModel):
     mail_to: list[str] = Field(default_factory=list)
     teams_webhook: str | None = None
     notify_on: str = "always"  # always | failure | never
+    digest_time: str | None = None  # "18:00" — None/vazio desativa o resumo
 
 
 def enviar_resumo(spec: NotifySpec, job: str, resultados: list[dict], inicio: datetime) -> None:
@@ -92,3 +93,38 @@ def _enviar_teams(webhook: str, assunto: str, corpo: str) -> None:
     )
     with urllib.request.urlopen(requisicao, timeout=15) as resposta:
         resposta.read()
+
+# --- Resumo diário ----------------------------------------------------------
+
+def _truncar(txt: str | None, n: int = 200) -> str:
+    txt = (txt or "").replace("\n", " ").strip()
+    return txt if len(txt) <= n else txt[: n - 3] + "..."
+
+
+def _corpo_resumo_diario(execucoes: list[dict], agora: datetime) -> str:
+    ok = sum(1 for e in execucoes if e.get("status") == "ok")
+    falhas = len(execucoes) - ok
+    linhas = [
+        f"Resumo das execuções de {agora.strftime('%d/%m/%Y')}",
+        f"Total: {len(execucoes)} | OK: {ok} | Falhas: {falhas}",
+        "",
+        "hora   | job               | status | duração | linhas | erro",
+    ]
+    for e in execucoes:
+        linhas.append(
+            f"{e.get('hora', '-'):6} | {e.get('job', '-'):17} | "
+            f"{e.get('status', '-'):6} | {e.get('duracao_s', 0):7.1f}s | "
+            f"{str(e.get('linhas', '-')):>6} | {_truncar(e.get('erro'))}"
+        )
+    return "\n".join(linhas)
+
+
+def enviar_resumo_diario(spec: "NotifySpec", execucoes: list[dict], agora: datetime) -> None:
+    """Consolidado do dia. Sem execuções, não envia nada."""
+    if not execucoes:
+        return
+    ok = sum(1 for e in execucoes if e.get("status") == "ok")
+    falhas = len(execucoes) - ok
+    assunto = (f"[ETL Braincube] Resumo diário {agora.strftime('%d/%m')} — "
+               f"{len(execucoes)} exec. ({ok} OK / {falhas} falha(s))")
+    _enviar_email(spec, assunto, _corpo_resumo_diario(execucoes, agora))

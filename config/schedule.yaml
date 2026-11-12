@@ -30,9 +30,10 @@ jobs:
         - perdas_mb16
 
 notify:
-     notify_on: always            # temporário para o teste
-     mail_smtp: "smtp.office365.com:587"
-     mail_user: samuel_mota@br.ajinomoto.com
-     mail_from: samuel_mota@br.ajinomoto.com
-     mail_to: [samuel_mota@br.ajinomoto.com]
+  notify_on: failure          # e-mail imediato só em falha
+  mail_smtp: "smtp.office365.com:587"
+  mail_user: samuel_mota@br.ajinomoto.com
+  mail_from: samuel_mota@br.ajinomoto.com
+  mail_to: [samuel_mota@br.ajinomoto.com]
+  digest_time: "01:25"
   # teams_webhook: https://...
