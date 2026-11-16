@@ -2,7 +2,7 @@
 retry_cooldown_minutes: 30
 
 jobs:
-  - name: fechamento_dia
+  - name: diario - Etapa 1
     schedule: "daily 05:00"
     queries:
       - oee_dia_mb15
@@ -11,29 +11,31 @@ jobs:
       - performance_dia_mb15
       - fechamento_dia_mb15
 
-  - name: tempos
+  - name: diario - Etapa 2
     schedule: "daily 05:15"
     queries:
       - time_running_dia_mb15
       - tempo_calendario_mb15
       - time_running_mensal_mb15
 
-  - name: gdd_semanal
+  - name: semanal
     schedule: "weekly mon 06:00"
     queries:
       - time_running_semanal_mb15
 
-  - name: monitoramento_rapido
+  - name: dados rapidos - 5min
     schedule: "every 5 minutes"
     queries:
         - paradas_mb14
         - perdas_mb16
 
 notify:
-  notify_on: failure          # e-mail imediato só em falha
+  notify_on: failure
   mail_smtp: "smtp.office365.com:587"
   mail_user: samuel_mota@br.ajinomoto.com
   mail_from: samuel_mota@br.ajinomoto.com
-  mail_to: [samuel_mota@br.ajinomoto.com]
-  digest_time: "01:25"
+  mail_to:
+    - samuel_mota@br.ajinomoto.com
+    - alexandro_silva@br.ajinomoto.com
+  digest_time: "17:00"
   # teams_webhook: https://...

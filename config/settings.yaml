@@ -4,4 +4,4 @@ timeout: 60
 max_retries: 3
 backoff_factor: 2.0
 timezone: America/Sao_Paulo
-data_dir: data
+data_dir: C:\Users\samuel_mota\AJINOMOTO DO BRASIL\Portal Food - Braincube
